@@ -1,0 +1,8 @@
+#Ignore everything
+/*
+/*/
+
+#except for this file, the assets folder and the project settings folder
+!.gitignore
+!/Assets/
+!/ProjectSettings/
