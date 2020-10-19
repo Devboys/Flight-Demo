@@ -4,7 +4,7 @@ using UnityEngine;
 using Devboys.SharedObjects.Variables;
 using Cinemachine;
 
-public class CameraZoomController : MonoBehaviour
+public class CameraZoomControllerFreeLook : MonoBehaviour
 {
     [Header("Player speed")]
     public FloatReference playerSpeed;
@@ -16,27 +16,31 @@ public class CameraZoomController : MonoBehaviour
     public float zoomSpeed = 1;
 
     //cached components
-    private CinemachineVirtualCamera _CMCamera;
-    private CinemachineTransposer CMTransposer;
+    private CinemachineFreeLook _CMCamera;
 
-    private float initialRigRadius;
-    private float targetRigRadius;
+    private float[] initialRigRadii = new float[3];
+    private float[] targetRigRadii = new float[3];
 
     #region - Unity Messages -
     private void Start()
     {
-        _CMCamera = this.GetComponent<CinemachineVirtualCamera>();
-        CMTransposer = _CMCamera.GetCinemachineComponent<CinemachineTransposer>();
-        initialRigRadius = CMTransposer.m_FollowOffset.z;
-
+        _CMCamera = GetComponent<CinemachineFreeLook>();
+        for(int i = 0; i < 2; i++)
+        {
+            initialRigRadii[i] = _CMCamera.m_Orbits[i].m_Radius;
+        }
     }
 
     public void Update()
     {
         float modifier = GetNormalizedSpeed() * zoomMod;
 
-        targetRigRadius = initialRigRadius + modifier;
-        CMTransposer.m_FollowOffset.z = Mathf.MoveTowards(CMTransposer.m_FollowOffset.z, targetRigRadius, zoomSpeed * Time.deltaTime);
+        //update camera zoom based on player speed;
+        for (int i = 0; i < 2; i++)
+        {
+            targetRigRadii[i] = initialRigRadii[i] + modifier;
+            _CMCamera.m_Orbits[i].m_Radius = Mathf.MoveTowards(_CMCamera.m_Orbits[i].m_Radius, targetRigRadii[i], zoomSpeed * Time.deltaTime);
+        }
 
     }
     #endregion
