@@ -4,6 +4,7 @@ using UnityEngine;
 using Devboys.SharedObjects.Variables;
 using Cinemachine;
 
+[RequireComponent(typeof(CinemachineVirtualCamera))]
 public class CameraZoomController : MonoBehaviour
 {
     [Header("Player speed")]
@@ -12,7 +13,8 @@ public class CameraZoomController : MonoBehaviour
     public float minSpeed = 5;
 
     [Header("Zoom vars")]
-    public float zoomMod = 1;
+    public float minZoom = 1;
+    public float maxZoom = 2;
     public float zoomSpeed = 1;
 
     //cached components
@@ -29,13 +31,23 @@ public class CameraZoomController : MonoBehaviour
         CMTransposer = _CMCamera.GetCinemachineComponent<CinemachineTransposer>();
         initialRigRadius = CMTransposer.m_FollowOffset.z;
 
+        Vector3 offset = CMTransposer.m_FollowOffset;
+        offset.z = minZoom;
+        CMTransposer.m_FollowOffset = offset;
+    }
+
+    public void OnValidate()
+    {
+        //keep zooms to negative vals only
+        minZoom = Mathf.Clamp(minZoom, -9999, 0);
+        maxZoom = Mathf.Clamp(maxZoom, -9999, 0);
     }
 
     public void Update()
     {
-        float modifier = GetNormalizedSpeed() * zoomMod;
+        float modifier = GetNormalizedSpeed() * maxZoom;
 
-        targetRigRadius = initialRigRadius + modifier;
+        targetRigRadius = minZoom + modifier;
         CMTransposer.m_FollowOffset.z = Mathf.MoveTowards(CMTransposer.m_FollowOffset.z, targetRigRadius, zoomSpeed * Time.deltaTime);
 
     }
