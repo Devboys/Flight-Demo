@@ -1,11 +1,5 @@
 {
   "dependencies": {
-    "com.devboys.shared-object-architecture": {
-      "version": "file:C:/Projects/SharedObjects",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {}
-    },
     "com.unity.cinemachine": {
       "version": "2.6.3",
       "depth": 0,

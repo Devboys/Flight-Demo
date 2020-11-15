@@ -13,7 +13,7 @@ public class PlayerFlightController : MonoBehaviour
     [Tooltip("The maximum speed of the player. In units/second.")]
     [SerializeField] private float maxFlySpeed = 15;
     [Tooltip("The shared object to hold the players current speed (used by other systems).")]
-    [SerializeField] private FloatVariable currentSpeed;
+    [SerializeField] private FloatVariable currentSpeed = null;
 
     [Header("Tilt & rotation vars")]
     [Tooltip("The speed modifier when the player is fully tilted up or down. In units/second.")]
@@ -32,6 +32,9 @@ public class PlayerFlightController : MonoBehaviour
     [Tooltip("How much the player accelerates from a single wing flap.")]
     [SerializeField] private float flapSpeedMod = 2;
 
+    [Header("Output vars")]
+    [SerializeField] private VectorVariable currentPositionVar = null;
+
 #if UNITY_EDITOR
     [Header("Gizmos")]
     public bool drawGizmos = true;
@@ -48,7 +51,8 @@ public class PlayerFlightController : MonoBehaviour
 
     //fly vectors
     private Vector3 flyDirection;
-    [SerializeField] private VectorVariable flyDirectionVar;
+    [SerializeField] private VectorVariable flyDirectionVar = null;
+
     //base vectors tied to current flyDirection projected onto the xz-plane. used to make rotations unaffected by flydirection
     private Vector3 baseForward; 
     private Vector3 baseSideways;
@@ -122,8 +126,10 @@ public class PlayerFlightController : MonoBehaviour
 
         this.transform.LookAt(transform.position + flyDirection, Vector3.up);
         flyDirectionVar.CurrentValue = flyDirection;
+        currentPositionVar.CurrentValue = this.transform.position;
 
         _controller.Move(flyDirection * currentSpeed.CurrentValue * Time.fixedDeltaTime);
+
     }
 
     private void OnEnable()
