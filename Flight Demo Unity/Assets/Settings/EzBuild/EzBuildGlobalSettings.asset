@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7bc852643f1234048b4dd102589dfbdb, type: 3}
+  m_Name: EzBuildGlobalSettings
+  m_EditorClassIdentifier: 
+  currentMainScene: {fileID: 11400000, guid: efd176b50fe65f548b12440b506f63fc, type: 2}
+  prependScenes:
+  - sceneAsset: {fileID: 102900000, guid: a810f40f91263e9408bc37181ecc568f, type: 3}
+    scenePath: Assets/Scenes/MainMenu.unity
+  appendScenes:
+  - sceneAsset: {fileID: 102900000, guid: 6a1d1a6d19c40334a83acee3301ded3d, type: 3}
+    scenePath: Assets/Scenes/TempPostScene.unity

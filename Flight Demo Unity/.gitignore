@@ -85,3 +85,7 @@ crashlytics-build.properties
 #exclude some wwise integration files
 #	cache file
 /[Aa]ssets/Wwise/Editor/ProjectData/*
+
+#exclude user-specific settings files in assets folder. (custom systems)
+/[Aa]ssets/Settings/User-Specific/*
+!/[Aa]ssets/Settings/User-Specific/README.txt

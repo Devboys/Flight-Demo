@@ -1,0 +1,1 @@
+This folder is for user-specific setting objects created by some of our custom systems. Everything in here (except for this document) will be ignored by git and will not be commited.
