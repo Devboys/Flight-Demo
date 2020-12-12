@@ -129,12 +129,18 @@ namespace Protopia.EditorClasses.BuildUtilities
                 writer.WriteLine($"BUILD RESULT: {report.summary.result.ToString()}");
                 writer.WriteLine($"----");
 
+                bool noMessagesWritten = true;
                 foreach(BuildStep step in report.steps)
                 {
                     foreach(BuildStepMessage message in step.messages)
                     {
                         writer.WriteLine($"{message.type.ToString()}:  {message.content}");
+                        noMessagesWritten = false;
                     }
+                }
+                if (noMessagesWritten)
+                {
+                    writer.WriteLine("<No Message Logs Found>");
                 }
             }
             catch(Exception e)
