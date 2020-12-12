@@ -192,12 +192,12 @@ public class PlayerFlightController : PlayerMovementStateBase
 
     private void SubscribeControls()
     {
-        inputObject.Movement.Jump.performed += x => Flap();
-        inputObject.Movement.Movement.performed += x =>
+        inputObject.Player.Jump.performed += x => Flap();
+        inputObject.Player.Movement.performed += x =>
         {
             movementInputVector = x.ReadValue<Vector2>();
         };
-        inputObject.Movement.Dash.performed += x => TryDash();
+        inputObject.Player.Dash.performed += x => TryDash();
     }
 
     void TryDash()

@@ -10,7 +10,6 @@ public class GoToNextSceneRef : MonoBehaviour
     {
         if (Keyboard.current.escapeKey.wasPressedThisFrame)
         {
-            Debug.Log("Next Scene");
             int i = SceneManager.GetActiveScene().buildIndex;
             i++;
 
