@@ -2,6 +2,7 @@
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class PauseMenuHandler : MonoBehaviour
 {
@@ -11,13 +12,18 @@ public class PauseMenuHandler : MonoBehaviour
     private bool inFirstFrameSinceActivated; //very jank
 
     public SceneReference MainMenuScene;
+    public GameObject firstSelectedObject;
 
     private PlayerInputActions playerInput;
     private bool onBaseMenu;
 
+    private EventSystem _eventSystem;
+
     private void Awake()
     {
         playerInput = FindObjectOfType<SharedPlayerInput>().GetPlayerInput();
+        _eventSystem = EventSystem.current;
+        
     }
 
     private void SubscribeControls()
@@ -36,7 +42,6 @@ public class PauseMenuHandler : MonoBehaviour
         {
             //if we're on the base menu level, mark this "pause" session as finished.
             if (onBaseMenu) ReturnToGame();
-            Debug.Log("returning");
         }
     }
 
@@ -44,10 +49,14 @@ public class PauseMenuHandler : MonoBehaviour
     public void OnEnable()
     {
         SubscribeControls();
+
         onBaseMenu = true;
         inFirstFrameSinceActivated = true;
 
-        EventSystem.current.SetSelectedGameObject(EventSystem.current.firstSelectedGameObject);
+        //select first gameobject from eventsystem and manually notify it that it was selected. Otherwise transition will not play.
+        GameObject selectedObject = _eventSystem.firstSelectedGameObject;
+        _eventSystem.SetSelectedGameObject(selectedObject);
+        selectedObject.GetComponent<Selectable>().OnSelect(null);
     }
 
     void OnDisable()

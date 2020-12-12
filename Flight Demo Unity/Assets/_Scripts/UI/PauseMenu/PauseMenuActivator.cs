@@ -12,8 +12,6 @@ public class PauseMenuActivator : MonoBehaviour
     public void Awake()
     {
         playerInput = FindObjectOfType<SharedPlayerInput>().GetPlayerInput();
-
-        if (pauseMenuHandler.gameObject.activeSelf) pauseMenuHandler.gameObject.SetActive(false);
     }
 
     public void SubscribeControls()

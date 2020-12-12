@@ -8,9 +8,13 @@ public class DashTarget : MonoBehaviour
 {
     [SerializeField] private DashTargetSet targetSet = null;
 
-    // Start is called before the first frame update
-    void Start()
+    private void OnEnable()
     {
         targetSet.AddItem(this);
+    }
+
+    private void OnDisable()
+    {
+        targetSet.RemoveItem(this);
     }
 }
