@@ -9,74 +9,84 @@ namespace Protopia.EditorClasses.BuildUtilities
     {
         public static readonly string UserSettingsFileName = "UserSettings"; //will be a .asset file.
 
+        /// <summary>
+        /// Builds a version of the game using the user-defined build definition.
+        /// </summary>
         public static void BuildEzBuildCustomDefinition()
         {
-            EditorBuildInfoVarsUtility.SetBuildType(EditorBuildInfoVarsUtility.BuildTypes.Test);
+            EzBuildVarsUtility.SetBuildType(EzBuildVars.BuildTypes.Test);
 
-            string folderPath = Path.Combine(GameBuilder.buildRootFolderPath, ".CustomBuild");
-            var userSettings = GetUserSettings();
-            string[] paths = userSettings.GetSceneListWithStandardScenes();
-
-            bool noPreloadPaths = true;
-            for(int i = 2; i < paths.Length; i++)
+            try
             {
-                if (IsStandardScenePath(paths[i])) noPreloadPaths = false;
-            }
+                string folderPath = Path.Combine(GameBuilder.buildRootFolderPath, ".CustomBuild");
+                var userSettings = GetUserSettings();
+                string[] paths = userSettings.GetSceneListWithStandardScenes();
 
-            if (noPreloadPaths)
-            {
-                GameBuilder.BuildDevelopmentWindows(folderPath, true, paths);
-                EzBuildGlobalSettings.GetCurrent().ResetMainScene();
-            }
-            else
-            {
-                UnityEngine.Debug.LogError("Tried to make a build with duplicate preload scenes");
-            }
+                bool noPreloadPaths = true;
+                for (int i = 2; i < paths.Length; i++)
+                {
+                    if (IsStandardScenePath(paths[i])) noPreloadPaths = false;
+                }
 
-            EditorBuildInfoVarsUtility.SetBuildType(EditorBuildInfoVarsUtility.BuildTypes.Editor);
+                if (noPreloadPaths)
+                {
+                    GameBuilder.BuildDevelopmentWindows(folderPath, true, paths);
+                }
+                else
+                {
+                    UnityEngine.Debug.LogError("Tried to make a build with duplicate preload scenes");
+                }
+            }
+            finally
+            {
+                EzBuildVarsUtility.ResetBuildType();
+            }
         }
 
-
+        /// <summary>
+        /// Builds a version of the game using only the currently active scene (and any standard scenes defined in the global settings)
+        /// </summary>
         [MenuItem("Build/EzBuild Current Scene", priority = 99)]
         public static void BuildCurrentScene()
         {
-            EditorBuildInfoVarsUtility.SetBuildType(EditorBuildInfoVarsUtility.BuildTypes.Test);
+            EzBuildVarsUtility.SetBuildType(EzBuildVars.BuildTypes.Test);
 
-            string currentScenePath = EditorSceneManager.GetActiveScene().path;
-
-            //make sure we're not trying to build a scene setup with multiple duplicate preload scenes.
-            if (!IsStandardScenePath(currentScenePath))
+            try
             {
-                EzBuildGlobalSettings globalSettings = EzBuildGlobalSettings.GetCurrent();
-                string[] paths = new string[globalSettings.prependScenes.Count + globalSettings.appendScenes.Count + 1];
-                int index = 0;
-                for(int i = 0; i < globalSettings.prependScenes.Count; i++)
+                string currentScenePath = EditorSceneManager.GetActiveScene().path;
+
+                //make sure we're not trying to build a scene setup with multiple duplicate preload scenes.
+                if (!IsStandardScenePath(currentScenePath))
                 {
-                    paths[i] = globalSettings.prependScenes[i];
-                }
-                index = globalSettings.prependScenes.Count;
-                paths[index] = currentScenePath;
-                index++;
+                    EzBuildGlobalSettings globalSettings = EzBuildGlobalSettings.GetCurrent();
+                    string[] paths = new string[globalSettings.prependScenes.Count + globalSettings.appendScenes.Count + 1];
+                    int index = 0;
+                    for (int i = 0; i < globalSettings.prependScenes.Count; i++)
+                    {
+                        paths[i] = globalSettings.prependScenes[i];
+                    }
+                    index = globalSettings.prependScenes.Count;
+                    paths[index] = currentScenePath;
+                    index++;
 
-                for(int j = 0; j < globalSettings.appendScenes.Count; j++)
+                    for (int j = 0; j < globalSettings.appendScenes.Count; j++)
+                    {
+                        paths[j + index] = globalSettings.appendScenes[j];
+                    }
+
+                    string folderPath = Path.Combine(GameBuilder.buildRootFolderPath, ".CustomBuild");
+
+                    GameBuilder.BuildDevelopmentWindows(folderPath, true, paths);
+                }
+                else
                 {
-                    paths[j + index] = globalSettings.appendScenes[j];
+                    UnityEngine.Debug.LogError("Tried to make a build with duplicate preload scenes");
                 }
-
-                string folderPath = Path.Combine(GameBuilder.buildRootFolderPath, ".CustomBuild");
-
-                globalSettings.SetMainScene(currentScenePath);
-
-                GameBuilder.BuildDevelopmentWindows(folderPath, true, paths);
-
-                globalSettings.ResetMainScene();
             }
-            else
+            finally
             {
-                UnityEngine.Debug.LogError("Tried to make a build with duplicate preload scenes");
+                EzBuildVarsUtility.ResetBuildType();
             }
-
-            EditorBuildInfoVarsUtility.SetBuildType(EditorBuildInfoVarsUtility.BuildTypes.Editor);
         }
 
         private static bool IsStandardScenePath(string scenePath)

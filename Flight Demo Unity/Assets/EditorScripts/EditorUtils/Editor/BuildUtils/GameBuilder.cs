@@ -117,7 +117,7 @@ namespace Protopia.EditorClasses.BuildUtilities
             {
                 writer.WriteLine($"BUILD REPORT FOR {Application.productName} VERSION {Application.version}");
                 writer.WriteLine($"BUILD VERSION: {Application.version}");
-                writer.WriteLine($"BUILD TYPE: {EditorBuildInfoVarsUtility.GetInfoVars().BuildType}");
+                writer.WriteLine($"BUILD TYPE: {EzBuildVarsUtility.GetBuildVarsAsset().BuildType}");
                 writer.WriteLine($"TIME STARTED: {report.summary.buildStartedAt.ToString()}");
                 writer.WriteLine($"TIME ENDED: {report.summary.buildEndedAt.ToString()}");
                 writer.WriteLine($"TIME ELAPSED: {report.summary.totalTime.ToString(@"hh\:mm\:ss")}");

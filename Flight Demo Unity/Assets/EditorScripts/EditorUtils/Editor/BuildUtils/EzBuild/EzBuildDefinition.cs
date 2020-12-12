@@ -42,11 +42,7 @@ namespace Protopia.EditorClasses.BuildUtilities.EzBuild
                 pathList.Add(scene.ScenePath);
             }
 
-            //REMOVE
-            globalSettings.SetMainScene(sceneList[0]);
-
             return pathList.ToArray();
         }
-
     }
 }
