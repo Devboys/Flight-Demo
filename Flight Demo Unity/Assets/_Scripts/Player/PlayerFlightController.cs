@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Devboys.SharedObjects.Variables;
+using UnityEngine.InputSystem;
 
 [DisallowMultipleComponent]
 [RequireComponent(typeof(PlayerDashController))]
@@ -71,9 +72,8 @@ public class PlayerFlightController : PlayerMovementStateBase
         _controller = GetComponent<CharacterController>();
         _animator = GetComponent<Animator>();
 
-        inputObject = new PlayerInputActions();
+        inputObject = FindObjectOfType<SharedPlayerInput>().GetPlayerInput();
 
-        SubscribeControls();
         currentSpeed.CurrentValue = initialFlySpeed;
     }
 
@@ -146,13 +146,14 @@ public class PlayerFlightController : PlayerMovementStateBase
 
     public override void HandleStateActivate()
     {
-        inputObject.Enable();
+        SubscribeControls();
     }
 
     public override void HandleStateDeactivate()
     {
-        inputObject.Disable();
+        UnsubscribeControls();
     }
+
 
 #if UNITY_EDITOR
     public override void ActiveDrawGizmos()
@@ -192,15 +193,24 @@ public class PlayerFlightController : PlayerMovementStateBase
 
     private void SubscribeControls()
     {
-        inputObject.Player.Jump.performed += x => Flap();
-        inputObject.Player.Movement.performed += x =>
-        {
-            movementInputVector = x.ReadValue<Vector2>();
-        };
-        inputObject.Player.Dash.performed += x => TryDash();
+        inputObject.Player.Jump.performed += Flap;
+        inputObject.Player.Movement.performed += HandleMovement;
+        inputObject.Player.Dash.performed += TryDash;
     }
 
-    void TryDash()
+    private void UnsubscribeControls()
+    {
+        inputObject.Player.Jump.performed -= Flap;
+        inputObject.Player.Movement.performed -= HandleMovement;
+        inputObject.Player.Dash.performed -= TryDash;
+    }
+
+    private void HandleMovement(InputAction.CallbackContext context)
+    {
+        movementInputVector = context.ReadValue<Vector2>();
+    }
+
+    public void TryDash(InputAction.CallbackContext context)
     {
         if (validDashTarget.CurrentValue == true)
         {
@@ -208,7 +218,7 @@ public class PlayerFlightController : PlayerMovementStateBase
         }
     }
 
-    void Flap()
+    public void Flap(InputAction.CallbackContext context)
     {
         if (!isFlapping)
         {
@@ -216,6 +226,7 @@ public class PlayerFlightController : PlayerMovementStateBase
             _animator.SetTrigger("Flap");
         }
     }
+
     //used by animation events
     void FlapSpeedMod()
     {
