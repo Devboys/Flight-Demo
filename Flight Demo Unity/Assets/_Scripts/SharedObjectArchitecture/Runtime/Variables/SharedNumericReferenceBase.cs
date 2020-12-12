@@ -9,7 +9,7 @@ namespace Devboys.SharedObjects.Variables
     public abstract class SharedNumericReferenceBase<T1, T2> where T2 : SharedNumericVariableBase<T1>
     {
         //simple abstraction class on top of float variable that allows you to switch between using shared SO variable and "constant" variable in the inspector.
-        [SerializeField] private bool UseLocalVariable = true;
+        [SerializeField] private bool UseLocalVariable = false;
 
         [SerializeField] private T1 LocalVariable = default;
         [SerializeField] private T2 SharedVariable = default;

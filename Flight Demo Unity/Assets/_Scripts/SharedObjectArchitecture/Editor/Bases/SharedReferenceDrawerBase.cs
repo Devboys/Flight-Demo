@@ -58,14 +58,14 @@ namespace Devboys.SharedObjects.EditorObjects
             {
                 GenericMenu menu = new GenericMenu();
 
-                menu.AddItem(new GUIContent("Use Local Variable"), (_useLocalVarValue.boolValue ? true : false), () =>
-                {
-                    _useLocalVarValue.boolValue = true;
-                    _useLocalVarValue.serializedObject.ApplyModifiedProperties(); //must use this to apply change to bool
-                });
                 menu.AddItem(new GUIContent("Use Shared Variable"), (_useLocalVarValue.boolValue ? false : true), () =>
                 {
                     _useLocalVarValue.boolValue = false;
+                    _useLocalVarValue.serializedObject.ApplyModifiedProperties(); //must use this to apply change to bool
+                });
+                menu.AddItem(new GUIContent("Use Local Variable"), (_useLocalVarValue.boolValue ? true : false), () =>
+                {
+                    _useLocalVarValue.boolValue = true;
                     _useLocalVarValue.serializedObject.ApplyModifiedProperties(); //must use this to apply change to bool
                 });
 
