@@ -50,7 +50,7 @@ namespace Protopia.EditorClasses.BuildUtilities
             {
                 locationPathName = Path.Combine(folderPath, executableFilename),
                 scenes = buildScenes,
-                target = BuildTarget.StandaloneWindows
+                target = BuildTarget.StandaloneWindows64
                 
             });
 
@@ -89,7 +89,7 @@ namespace Protopia.EditorClasses.BuildUtilities
             {
                 locationPathName = Path.Combine(folderPath, executableFilename),
                 scenes = buildScenes,
-                target = BuildTarget.StandaloneWindows,
+                target = BuildTarget.StandaloneWindows64,
                 options = BuildOptions.Development
 
             });
