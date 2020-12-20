@@ -1,0 +1,31 @@
+﻿#pragma kernel CSMain
+
+//This is a single-pass box blur compute shader that takes two textures and applies a box-blurred version of the input texture on the output texture.
+
+Texture2D<float4> _InputTex; //The original image fed into the blur filter.
+RWTexture2D<float4> _ResultTex; //The result of the blur operation will be encoded unto this.
+uint _KernelSize; //The size of the convolution-filter (i.e. the N of the NxN-tap filter)
+
+[numthreads(16,9,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+	//define bounds of kernel (to iterate over neighbours)
+	int upper = ((_KernelSize - 1) / 2);
+	int lower = -upper;
+
+	//sum all neighbouring texel colors using box filter.
+	float sum = 0.0;
+	for (int x = lower; x <= upper; ++x) 
+	{
+		for (int y = lower; y <= upper; ++y)
+		{
+			//this is the box-blur part. We weigh each neighbouring pixel equally.
+			half2 offset = half2(id.x + x, id.y + y);
+			sum += _InputTex[offset].w; //we blur only colors (hence xyz)
+		}
+	}
+
+	//average the summed colors and return the result as the color for the given texel on the output image.
+	sum /= (_KernelSize * _KernelSize);
+    _ResultTex[id.xy] = float4(_InputTex[id.xy].xyz, sum);
+}

@@ -1,0 +1,84 @@
+﻿//This is a single-pass gaussian blur compute shader that takes two textures and applies a gauss-blurred version of the input texture on the output texture.
+#pragma kernel CSMain
+
+//Parameters
+Texture2D<float4> _InputTex; //The original image fed into the blur filter.
+RWBuffer<float> _DepthBuffer; //The depth buffer of the image.
+RWTexture2D<float4> _ResultTex; //The result of the blur operation will be encoded unto this.
+
+uint _KernelSize; //The size of the convolution-filter (i.e. the N of the NxN-tap filter)
+//uint _BoxKernelSize = 3;
+float _SpreadMul; //Multiplier of the spread-depth curve.
+
+//Some constants to use in gauss blur calculation
+static const float TWO_PI = 6.28319; //approxmiate PI*2
+static const float E = 2.71828; //approximate of eulers number.
+
+//This is c++ style compilation, so we must place helper functions above kernels
+// Two-dimensional Gaussian curve function. spread is standard deviation.
+float Gaussian(int x, int y, float spread)
+{
+	float sigmaSqu = spread * spread;
+	return (1 / sqrt(TWO_PI * sigmaSqu)) * pow(E, -((x * x) + (y * y)) / (2 * sigmaSqu));
+}
+
+//float BlurAlpha(uint3 id)
+//{
+//	//define bounds of kernel (to iterate over neighbours)
+//	int upper = ((_BoxKernelSize - 1) / 2);
+//	int lower = -upper;
+//
+//	float boxAlpha = 0.0;
+//	float boxSum = 0.0;
+//
+//	for (int x = lower; x <= upper; ++x)
+//	{
+//		for (int y = lower; y <= upper; ++y)
+//		{
+//			//this is the neighbour pixel position
+//			half2 offset = half2(id.x + x, id.y + y);
+//			//next we apply a box-blur to the alpha channel.
+//			boxSum += _InputTex[offset].w; //alpha channel contains depth values;
+//		}
+//	}
+//
+//	boxSum /= (_BoxKernelSize * _BoxKernelSize);
+//
+//	return boxSum;
+//}
+
+[numthreads(16,9,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+	//define bounds of kernel (to iterate over neighbours)
+	int upper = ((_KernelSize - 1) / 2);
+	int lower = -upper;
+
+	//sum all neighbouring texel colors using gaussian filter.
+	half3 gaussCol = half3(0.0, 0.0, 0.0);
+	float gaussSum = 0.0;
+	//float boxAlpha = 0.0;
+	//float boxSum = 0.0;
+
+	for (int x = lower; x <= upper; ++x) 
+	{
+		for (int y = lower; y <= upper; ++y)
+		{
+			//this is the neighbour pixel position
+			half2 offset = half2(id.x + x, id.y + y);
+
+			//this is the gauss-blur part, we add the gaussian weighted value of this neighbours color to the sum.
+			float gauss = Gaussian(x, y, (1 - _InputTex[offset].w) * _SpreadMul);
+			gaussSum += gauss;
+
+			gaussCol += gauss * _InputTex[offset].xyz; //we blur only colors (hence xyz)
+
+			////next we apply a box-blur to the alpha channel.
+			//boxSum += _InputTex[offset].w; //alpha channel contains depth values;
+		}
+	}
+
+	gaussCol /= gaussSum;
+	/*boxSum /= (_KernelSize * _KernelSize);*/
+    _ResultTex[id.xy] = float4(gaussCol, _InputTex[id.xy].w);
+}
