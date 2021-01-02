@@ -1,0 +1,25 @@
+fileFormatVersion: 2
+guid: 007fc56ca2a893d459a661418e7593f7
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - LookAction: {fileID: -8286749041921006322, guid: 61aa394b27ac4fa4a9d1c8021f032a2c,
+      type: 3}
+  - MoveAction: {fileID: -550505608259802868, guid: 61aa394b27ac4fa4a9d1c8021f032a2c,
+      type: 3}
+  - CameraUpAction: {fileID: -4943732764336370320, guid: 61aa394b27ac4fa4a9d1c8021f032a2c,
+      type: 3}
+  - CameraDownAction: {fileID: 1222034778592617069, guid: 61aa394b27ac4fa4a9d1c8021f032a2c,
+      type: 3}
+  - SprintAction: {fileID: 4764800316642921926, guid: 61aa394b27ac4fa4a9d1c8021f032a2c,
+      type: 3}
+  - AdjustSpeedAction: {fileID: -3790452994955705453, guid: 61aa394b27ac4fa4a9d1c8021f032a2c,
+      type: 3}
+  - ToggleCloseModeAction: {fileID: 7577342959099604368, guid: 61aa394b27ac4fa4a9d1c8021f032a2c,
+      type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

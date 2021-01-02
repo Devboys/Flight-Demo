@@ -20,8 +20,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: CloudsRenderTextureTwo
-  m_Shader: {fileID: 4800000, guid: 5463be6c4a47c9041b2c6d772887d556, type: 3}
+  m_Name: TestShaderMaterial
+  m_Shader: {fileID: 4800000, guid: 7a422c564ab32b743aa2569950db4bf4, type: 3}
   m_ShaderKeywords: _DRAWA_ON _ENVIRONMENTREFLECTIONS_OFF _RECEIVE_SHADOWS_OFF _SPECULARHIGHLIGHTS_OFF
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -53,7 +53,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NoiseTex:
-        m_Texture: {fileID: 2800000, guid: 0620571c78d10ad48870dd48d4d46898, type: 3}
+        m_Texture: {fileID: 2800000, guid: 5e39717204b99bf4687ca2ad08146d69, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OcclusionMap:

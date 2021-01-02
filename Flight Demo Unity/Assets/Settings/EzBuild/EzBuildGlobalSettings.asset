@@ -12,7 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7bc852643f1234048b4dd102589dfbdb, type: 3}
   m_Name: EzBuildGlobalSettings
   m_EditorClassIdentifier: 
-  prependScenes:
-  - sceneAsset: {fileID: 102900000, guid: a810f40f91263e9408bc37181ecc568f, type: 3}
-    scenePath: Assets/Scenes/BuildScenes/MainMenu.unity
+  prependScenes: []
   appendScenes: []

@@ -11,7 +11,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/BuildScenes/Flight Demo.unity
     guid: 3eba472678b2d3646b606f39eb1aff62
-  - enabled: 1
-    path: Assets/Scenes/BuildScenes/TempPostScene.unity
-    guid: 6a1d1a6d19c40334a83acee3301ded3d
+  - enabled: 0
+    path: 
+    guid: 00000000000000000000000000000000
   m_configObjects: {}

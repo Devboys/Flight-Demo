@@ -70,6 +70,7 @@ Material:
     - _BumpScale: 1
     - _Cull: 2
     - _Cutoff: 0.5
+    - _DistortionSpread: 0.01
     - _DrawA: 1
     - _DrawB: 0
     - _DrawG: 0
