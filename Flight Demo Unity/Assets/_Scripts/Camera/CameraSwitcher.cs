@@ -8,14 +8,21 @@ using Cinemachine;
 public class CameraSwitcher : MonoBehaviour
 {
     [Header("Camera refs")]
-    public CinemachineVirtualCamera lockedCamera = null; //locked behind player.
-    public CinemachineFreeLook freeLookCamera = null; //used to orbit the player.
+    [SerializeField] private CinemachineVirtualCamera lockedCamera = null; //locked behind player.
+    [SerializeField] private CinemachineFreeLook freeLookCamera = null; //used to orbit the player.
+
+    [Header("Switch settings")]
+    [Tooltip("The amount of seconds to wait before resetting free-look camera back to locked camera. Reset when player moves the camera.")]
+    [SerializeField] private float resetWaitTime = 10;
 
     // ---- Private vars ----
     private PlayerInputActions inputActions;
     //Stores the current transition coroutine. Used to indicate wether a transition is in progress and can be used to cancel it.
     private Coroutine transitionCoroutine;
 
+    private float resetCamTimer;
+
+    // ---- Cached Components ----
     private FreelookZoomController freeZoomController;
 
     // ---- Shorthands ----
@@ -27,6 +34,8 @@ public class CameraSwitcher : MonoBehaviour
         lockedCamera.Priority = 1;
         freeLookCamera.Priority = 0;
 
+        resetCamTimer = 0;
+
         inputActions = FindObjectOfType<SharedPlayerInput>().GetPlayerInput();
         inputActions.Player.Look.performed += Look_performed;
         inputActions.Player.ResetCamera.performed += ResetCamera_performed;
@@ -34,6 +43,15 @@ public class CameraSwitcher : MonoBehaviour
         transitionCoroutine = null;
 
         freeZoomController = freeLookCamera.GetComponent<FreelookZoomController>();
+    }
+
+    private void Update()
+    {
+        if(resetCamTimer > 0)
+        {
+            resetCamTimer -= Time.deltaTime;
+            if (resetCamTimer <= 0) FreeToLockedCamera();
+        }
     }
 
     private void ResetCamera_performed(InputAction.CallbackContext obj)
@@ -53,25 +71,16 @@ public class CameraSwitcher : MonoBehaviour
     }
 
     /// <summary>
-    /// Switches from orbital camera view to locked camera view. Transition manually handled to ensure that camera "rotates" around the player rather than zooms overhead.
+    /// Switches from orbital camera view to locked camera view.
     /// </summary>
     private void FreeToLockedCamera()
     {
         if (InLocked || transitionCoroutine != null) return;
 
-        //transition the locked camera manually and then switch to locked camera.
-        //transitionCoroutine = StartCoroutine(RecenterFreelook(1, () =>
-        //    {
-        //        lockedCamera.Priority = 1;
-        //        freeLookCamera.Priority = 0;
-
-        //        transitionCoroutine = null;
-        //    }
-        //    ));
-
         lockedCamera.Priority = 1;
         freeLookCamera.Priority = 0;
 
+        //We have to delay resetting the freelook camera for a bit because we need the transitions to play out properly in cinemachine.
         transitionCoroutine = StartCoroutine(CoroutineUtils.WaitThenCallBack(0.3f, () => 
             {   
                 freeLookCamera.m_XAxis.Value = 0f;
@@ -84,40 +93,16 @@ public class CameraSwitcher : MonoBehaviour
     }
 
     /// <summary>
-    /// Switches from locked camera view to orbital camera view. Transition automatically handled by cinemachine.
+    /// Switches from locked camera view to orbital camera view.
     /// </summary>
     private void LockedToFreeCamera()
     {
-        //if(transitionCoroutine != null) CancelRecenter();
+        resetCamTimer = resetWaitTime;
         if (InFreeLook || transitionCoroutine != null) return;
 
         freeLookCamera.Priority = 1;
         lockedCamera.Priority = 0;
 
         freeZoomController.LockZoom();
-    }
-
-    private IEnumerator RecenterFreelook(float speed, Action endOfTransitionCallback)
-    {
-        float xValue = freeLookCamera.m_XAxis.Value;
-        float yValue = freeLookCamera.m_YAxis.Value;
-
-        while((Mathf.Abs(xValue) > 0.1f) && (Mathf.Abs(yValue) > 0.01f))
-        {
-            xValue = Mathf.MoveTowards(xValue, 0, speed * 180 * Time.deltaTime);
-            yValue = Mathf.MoveTowards(yValue, 0.5f, speed * Time.deltaTime);
-            freeLookCamera.m_XAxis.Value = xValue;
-            freeLookCamera.m_YAxis.Value = yValue;
-            yield return null;
-        }
-        endOfTransitionCallback.Invoke();
-    }
-    private void CancelRecenter()
-    {
-        if (transitionCoroutine != null)
-        {
-            StopCoroutine(transitionCoroutine);
-            transitionCoroutine = null;
-        }
     }
 }

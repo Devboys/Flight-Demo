@@ -8,17 +8,17 @@ using Cinemachine;
 public class LockedZoomController : MonoBehaviour
 {
     [Header("References")]
-    public FloatVariable currentZoom;
-    public FloatReference playerSpeed;
+    [SerializeField] private FloatVariable currentZoom;
+    [SerializeField] private FloatReference playerSpeed;
     
     [Header("Speed normalization")]
-    public float maxSpeed = 20;
-    public float minSpeed = 5;
+    [SerializeField] private float maxSpeed = 20;
+    [SerializeField] private float minSpeed = 5;
 
     [Header("Zoom vars")]
-    public float minZoom = 1;
-    public float maxZoom = 2;
-    public float zoomSpeed = 1;
+    [SerializeField] private float minZoom = 1;
+    [SerializeField] private float maxZoom = 2;
+    [SerializeField] private float zoomSpeed = 1;
 
     //cached components
     private CinemachineVirtualCamera _CMCamera;

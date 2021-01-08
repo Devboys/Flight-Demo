@@ -1425,6 +1425,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lockedCamera: {fileID: 1327686423}
   freeLookCamera: {fileID: 1317493132}
+  resetWaitTime: 5
 --- !u!1 &709395489
 GameObject:
   m_ObjectHideFlags: 0
@@ -3472,7 +3473,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1323828692}
-  m_LocalRotation: {x: 0.019433415, y: 0.0000000172703, z: -3.3568434e-10, w: 0.9998112}
+  m_LocalRotation: {x: 0.019433435, y: -0.000000017169596, z: 3.337272e-10, w: 0.9998112}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:

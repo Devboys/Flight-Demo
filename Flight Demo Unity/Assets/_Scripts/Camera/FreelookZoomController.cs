@@ -11,13 +11,13 @@ using Cinemachine;
 public class FreelookZoomController : MonoBehaviour
 {
     [Header("References")]
-    public FloatReference lockedCamZoom;
+    [SerializeField] private FloatReference lockedCamZoom;
 
     [Header("Base values")]
-    public float lockedZoomRadius = 10;
-    public float lowerUpperOffset = -3;
+    [SerializeField] private float lockedZoomRadius = 10;
+    [SerializeField] private float lowerUpperOffset = -3;
     [Tooltip("When transitioning from locked to freelook camera, this value controls how fast the zoom returns to the locked zoom radius")]
-    public float zoomSpeed = 2;
+    [SerializeField] private float zoomSpeed = 2;
 
     //cached components
     private CinemachineFreeLook _CMCamera;
