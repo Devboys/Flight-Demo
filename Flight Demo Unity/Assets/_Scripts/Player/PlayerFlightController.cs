@@ -65,6 +65,8 @@ public class PlayerFlightController : PlayerMovementStateBase
     //flap vars
     private bool isFlapping;
 
+    private bool breaking;
+
     #region - Unity Callbacks - 
     private void Awake()
     {
@@ -82,7 +84,7 @@ public class PlayerFlightController : PlayerMovementStateBase
         flyDirection = Vector3.forward;
     }
 
-    public override void ActiveFixedUpdate()
+    public override void ActiveUpdate()
     {
         //update base vectors;
         baseForward = Vector3.ProjectOnPlane(flyDirection, Vector3.up).normalized;
@@ -90,7 +92,7 @@ public class PlayerFlightController : PlayerMovementStateBase
 
         if (Mathf.Abs(movementInputVector.y) > 0.01f)
         {
-            float rot = movementInputVector.y * verticalRotationSpeed * Time.fixedDeltaTime;
+            float rot = movementInputVector.y * verticalRotationSpeed * Time.deltaTime;
             Vector3 desiredDirection = Quaternion.AngleAxis(rot, baseSideways) * flyDirection;
 
             float angle = Vector3.SignedAngle(baseForward, desiredDirection, baseSideways);
@@ -121,11 +123,11 @@ public class PlayerFlightController : PlayerMovementStateBase
 
         if(Mathf.Abs(movementInputVector.x) > 0.01f)
         {
-            flyDirection = Quaternion.AngleAxis(horizontalRotationSpeed * movementInputVector.x * Time.fixedDeltaTime, Vector3.up) * flyDirection;
+            flyDirection = Quaternion.AngleAxis(horizontalRotationSpeed * movementInputVector.x * Time.deltaTime, Vector3.up) * flyDirection;
         }
 
         float verticalAngle = Vector3.SignedAngle(baseForward, flyDirection, baseSideways);
-        if (verticalAngle != 0) currentSpeed.CurrentValue += - (verticalAngle / maxVerticalAngle) * tiltAcceleration * Time.fixedDeltaTime;
+        if (verticalAngle != 0) currentSpeed.CurrentValue += - (verticalAngle / maxVerticalAngle) * tiltAcceleration * Time.deltaTime;
         //currentSpeed.CurrentValue = Mathf.Clamp(currentSpeed.CurrentValue, minFlySpeed, maxFlySpeed);
         if(currentSpeed.CurrentValue > maxFlySpeed)
         {
@@ -139,8 +141,8 @@ public class PlayerFlightController : PlayerMovementStateBase
         this.transform.LookAt(transform.position + flyDirection, Vector3.up);
         flyDirectionVar.CurrentValue = flyDirection;
         currentPositionVar.CurrentValue = this.transform.position;
-
-        _controller.Move(flyDirection * currentSpeed.CurrentValue * Time.fixedDeltaTime);
+        if(!breaking)
+            _controller.Move(flyDirection * currentSpeed.CurrentValue * Time.deltaTime);
 
     }
 
@@ -196,6 +198,8 @@ public class PlayerFlightController : PlayerMovementStateBase
         inputObject.Player.Jump.performed += Flap;
         inputObject.Player.Movement.performed += HandleMovement;
         inputObject.Player.Dash.performed += TryDash;
+        inputObject.Player.BreakFlight.performed += BreakSpeed;
+
     }
 
     private void UnsubscribeControls()
@@ -203,6 +207,7 @@ public class PlayerFlightController : PlayerMovementStateBase
         inputObject.Player.Jump.performed -= Flap;
         inputObject.Player.Movement.performed -= HandleMovement;
         inputObject.Player.Dash.performed -= TryDash;
+        inputObject.Player.BreakFlight.performed -= BreakSpeed;
     }
 
     private void HandleMovement(InputAction.CallbackContext context)
@@ -216,6 +221,11 @@ public class PlayerFlightController : PlayerMovementStateBase
         {
             parentHandler.SwitchToState<PlayerDashController>();
         }
+    }
+
+    public void BreakSpeed(InputAction.CallbackContext context)
+    {
+        breaking = !breaking;
     }
 
     public void Flap(InputAction.CallbackContext context)

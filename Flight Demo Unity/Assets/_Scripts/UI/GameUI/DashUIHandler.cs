@@ -20,7 +20,7 @@ public class DashUIHandler : MonoBehaviour
         mainCam = Camera.main;
     }
 
-    private void Update()
+    private void LateUpdate()
     {
         if(currentDashTargetValid.CurrentValue && !dashUIObject.gameObject.activeSelf)
         {
@@ -33,7 +33,8 @@ public class DashUIHandler : MonoBehaviour
 
         if (currentDashTargetValid.CurrentValue)
         {
-            dashUIObject.position = mainCam.WorldToScreenPoint(currentDashTarget.CurrentValue);
+            Vector3 dashTargetPos = currentDashTarget.CurrentValue;
+            dashUIObject.position = mainCam.WorldToScreenPoint(dashTargetPos);
         }
     }
 }

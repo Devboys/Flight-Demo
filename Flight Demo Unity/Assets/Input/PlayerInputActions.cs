@@ -65,6 +65,14 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """"
+                },
+                {
+                    ""name"": ""BreakFlight"",
+                    ""type"": ""Button"",
+                    ""id"": ""e0cb0793-5712-4bc5-a06f-1119fc96fc62"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
                 }
             ],
             ""bindings"": [
@@ -219,6 +227,17 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
                     ""processors"": """",
                     ""groups"": ""Gamepad"",
                     ""action"": ""ResetCamera"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""0561cbc1-c073-4376-87dc-661f10df34bc"",
+                    ""path"": ""<Gamepad>/leftTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""BreakFlight"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -643,6 +662,7 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
         m_Player_Dash = m_Player.FindAction("Dash", throwIfNotFound: true);
         m_Player_Pause = m_Player.FindAction("Pause", throwIfNotFound: true);
         m_Player_ResetCamera = m_Player.FindAction("ResetCamera", throwIfNotFound: true);
+        m_Player_BreakFlight = m_Player.FindAction("BreakFlight", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -708,6 +728,7 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
     private readonly InputAction m_Player_Dash;
     private readonly InputAction m_Player_Pause;
     private readonly InputAction m_Player_ResetCamera;
+    private readonly InputAction m_Player_BreakFlight;
     public struct PlayerActions
     {
         private @PlayerInputActions m_Wrapper;
@@ -718,6 +739,7 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
         public InputAction @Dash => m_Wrapper.m_Player_Dash;
         public InputAction @Pause => m_Wrapper.m_Player_Pause;
         public InputAction @ResetCamera => m_Wrapper.m_Player_ResetCamera;
+        public InputAction @BreakFlight => m_Wrapper.m_Player_BreakFlight;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -745,6 +767,9 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
                 @ResetCamera.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnResetCamera;
                 @ResetCamera.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnResetCamera;
                 @ResetCamera.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnResetCamera;
+                @BreakFlight.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnBreakFlight;
+                @BreakFlight.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnBreakFlight;
+                @BreakFlight.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnBreakFlight;
             }
             m_Wrapper.m_PlayerActionsCallbackInterface = instance;
             if (instance != null)
@@ -767,6 +792,9 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
                 @ResetCamera.started += instance.OnResetCamera;
                 @ResetCamera.performed += instance.OnResetCamera;
                 @ResetCamera.canceled += instance.OnResetCamera;
+                @BreakFlight.started += instance.OnBreakFlight;
+                @BreakFlight.performed += instance.OnBreakFlight;
+                @BreakFlight.canceled += instance.OnBreakFlight;
             }
         }
     }
@@ -886,6 +914,7 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
         void OnDash(InputAction.CallbackContext context);
         void OnPause(InputAction.CallbackContext context);
         void OnResetCamera(InputAction.CallbackContext context);
+        void OnBreakFlight(InputAction.CallbackContext context);
     }
     public interface IUIActions
     {

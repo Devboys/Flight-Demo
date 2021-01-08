@@ -34,13 +34,13 @@ public class PlayerDashController : PlayerMovementStateBase
         currentSpeed.CurrentValue = dashSpeed;
     }
 
-    public override void ActiveFixedUpdate()
+    public override void ActiveUpdate()
     {
         transform.LookAt(this.transform.position + dashDirection.normalized, Vector3.up);
 
-        _charController.Move(dashDirection * currentSpeed.CurrentValue * Time.fixedDeltaTime);
+        _charController.Move(dashDirection * currentSpeed.CurrentValue * Time.deltaTime);
 
-        dashTimer -= Time.fixedDeltaTime;
+        dashTimer -= Time.deltaTime;
 
         if (dashTimer <= 0)
         {
