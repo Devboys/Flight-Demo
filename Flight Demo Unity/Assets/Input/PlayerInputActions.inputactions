@@ -44,6 +44,14 @@
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": ""
+                },
+                {
+                    "name": "ResetCamera",
+                    "type": "Button",
+                    "id": "ac1dfc98-1196-4647-a35d-b87e373a6a0f",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
                 }
             ],
             "bindings": [
@@ -187,6 +195,17 @@
                     "processors": "",
                     "groups": "Keyboard&Mouse",
                     "action": "Pause",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "70f75f40-73ab-47d4-aafc-8ae439a0b5c0",
+                    "path": "<Gamepad>/rightShoulder",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "ResetCamera",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

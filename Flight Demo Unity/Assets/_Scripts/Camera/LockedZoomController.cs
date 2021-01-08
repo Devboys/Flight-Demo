@@ -5,10 +5,13 @@ using Devboys.SharedObjects.Variables;
 using Cinemachine;
 
 [RequireComponent(typeof(CinemachineVirtualCamera))]
-public class CameraZoomController : MonoBehaviour
+public class LockedZoomController : MonoBehaviour
 {
-    [Header("Player speed")]
+    [Header("References")]
+    public FloatVariable currentZoom;
     public FloatReference playerSpeed;
+    
+    [Header("Speed normalization")]
     public float maxSpeed = 20;
     public float minSpeed = 5;
 
@@ -21,37 +24,35 @@ public class CameraZoomController : MonoBehaviour
     private CinemachineVirtualCamera _CMCamera;
     private CinemachineTransposer CMTransposer;
 
-    private float initialRigRadius;
-    private float targetRigRadius;
+    private Vector3 camOffsetNormalized;
 
     #region - Unity Messages -
     private void Start()
     {
         _CMCamera = this.GetComponent<CinemachineVirtualCamera>();
         CMTransposer = _CMCamera.GetCinemachineComponent<CinemachineTransposer>();
-        initialRigRadius = CMTransposer.m_FollowOffset.z;
 
-        Vector3 offset = CMTransposer.m_FollowOffset;
-        offset.z = minZoom;
-        CMTransposer.m_FollowOffset = offset;
+        camOffsetNormalized = CMTransposer.m_FollowOffset.normalized;
+
+        CMTransposer.m_FollowOffset = camOffsetNormalized * minZoom;
     }
 
     public void OnValidate()
     {
         //keep zooms to negative vals only
-        minZoom = Mathf.Clamp(minZoom, -9999, 0);
-        maxZoom = Mathf.Clamp(maxZoom, -9999, 0);
+        minZoom = Mathf.Clamp(minZoom, 0, 9999);
+        maxZoom = Mathf.Clamp(maxZoom, 0, 9999);
     }
 
     public void Update()
     {
-        float modifier = GetNormalizedSpeed() * maxZoom;
+        float modifier = GetNormalizedSpeed() * (maxZoom - minZoom);
 
-        targetRigRadius = minZoom + modifier;
-        //float delta = (targetRigRadius - CMTransposer.m_FollowOffset.z) / ;
+        float targetRadius = minZoom + modifier;
+        Vector3 targetOffset = camOffsetNormalized * targetRadius;
+        CMTransposer.m_FollowOffset = Vector3.MoveTowards(CMTransposer.m_FollowOffset, targetOffset, zoomSpeed * Time.deltaTime);
 
-        CMTransposer.m_FollowOffset.z = Mathf.MoveTowards(CMTransposer.m_FollowOffset.z, targetRigRadius, zoomSpeed * Time.deltaTime);
-
+        currentZoom.CurrentValue = CMTransposer.m_FollowOffset.magnitude;
     }
     #endregion
 

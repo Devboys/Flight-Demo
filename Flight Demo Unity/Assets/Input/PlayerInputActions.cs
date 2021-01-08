@@ -57,6 +57,14 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """"
+                },
+                {
+                    ""name"": ""ResetCamera"",
+                    ""type"": ""Button"",
+                    ""id"": ""ac1dfc98-1196-4647-a35d-b87e373a6a0f"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
                 }
             ],
             ""bindings"": [
@@ -200,6 +208,17 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
                     ""processors"": """",
                     ""groups"": ""Keyboard&Mouse"",
                     ""action"": ""Pause"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""70f75f40-73ab-47d4-aafc-8ae439a0b5c0"",
+                    ""path"": ""<Gamepad>/rightShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""ResetCamera"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -623,6 +642,7 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
         m_Player_Jump = m_Player.FindAction("Jump", throwIfNotFound: true);
         m_Player_Dash = m_Player.FindAction("Dash", throwIfNotFound: true);
         m_Player_Pause = m_Player.FindAction("Pause", throwIfNotFound: true);
+        m_Player_ResetCamera = m_Player.FindAction("ResetCamera", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -687,6 +707,7 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
     private readonly InputAction m_Player_Jump;
     private readonly InputAction m_Player_Dash;
     private readonly InputAction m_Player_Pause;
+    private readonly InputAction m_Player_ResetCamera;
     public struct PlayerActions
     {
         private @PlayerInputActions m_Wrapper;
@@ -696,6 +717,7 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
         public InputAction @Jump => m_Wrapper.m_Player_Jump;
         public InputAction @Dash => m_Wrapper.m_Player_Dash;
         public InputAction @Pause => m_Wrapper.m_Player_Pause;
+        public InputAction @ResetCamera => m_Wrapper.m_Player_ResetCamera;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -720,6 +742,9 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
                 @Pause.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnPause;
                 @Pause.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnPause;
                 @Pause.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnPause;
+                @ResetCamera.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnResetCamera;
+                @ResetCamera.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnResetCamera;
+                @ResetCamera.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnResetCamera;
             }
             m_Wrapper.m_PlayerActionsCallbackInterface = instance;
             if (instance != null)
@@ -739,6 +764,9 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
                 @Pause.started += instance.OnPause;
                 @Pause.performed += instance.OnPause;
                 @Pause.canceled += instance.OnPause;
+                @ResetCamera.started += instance.OnResetCamera;
+                @ResetCamera.performed += instance.OnResetCamera;
+                @ResetCamera.canceled += instance.OnResetCamera;
             }
         }
     }
@@ -857,6 +885,7 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
         void OnJump(InputAction.CallbackContext context);
         void OnDash(InputAction.CallbackContext context);
         void OnPause(InputAction.CallbackContext context);
+        void OnResetCamera(InputAction.CallbackContext context);
     }
     public interface IUIActions
     {
