@@ -1865,7 +1865,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 928378980}
-  m_LocalRotation: {x: 0.019433431, y: -0.0000000172367, z: 3.3503147e-10, w: 0.9998112}
+  m_LocalRotation: {x: 0.019433452, y: 0.000000017236697, z: -3.3503175e-10, w: 0.9998112}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -2892,7 +2892,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1198038761}
-  m_LocalRotation: {x: 0.019433452, y: -0.000000017236696, z: 3.3503175e-10, w: 0.9998112}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 74, y: 1.02, z: -136.4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -3612,7 +3612,7 @@ MonoBehaviour:
   minSpeed: 5
   minZoom: 10
   maxZoom: 30
-  zoomSpeed: 2
+  zoomSpeed: 5
 --- !u!1 &1333212952
 GameObject:
   m_ObjectHideFlags: 0
@@ -3864,7 +3864,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1425441797}
-  m_LocalRotation: {x: 0.019433452, y: -0.000000017236696, z: 3.3503172e-10, w: 0.9998112}
+  m_LocalRotation: {x: 0.019433431, y: 0.000000017236701, z: -3.3503153e-10, w: 0.9998112}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -5901,14 +5901,14 @@ MonoBehaviour:
   initialFlySpeed: 10
   minFlySpeed: 2
   maxFlySpeed: 50
-  speedCorrectionDelta: 5
+  speedCorrectionDelta: 10
   tiltAcceleration: 3
   basePitchSpeed: 40
   baseYawSpeed: 40
   maxPitchAngle: 50
   minPitchAngle: -50
   flapSpeedMod: 8
-  breakFlightDeceleration: -4
+  breakFlightDeceleration: -8
   breakYawSpeedMod: 40
   validDashTarget:
     UseLocalVariable: 0

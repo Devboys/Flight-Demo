@@ -278,7 +278,8 @@ public class PlayerFlightController : PlayerMovementStateBase
         }
         else if (currentSpeed.CurrentValue < minFlySpeed)
         {
-            currentSpeed.CurrentValue = Mathf.MoveTowards(currentSpeed.CurrentValue, minFlySpeed, speedCorrectionDelta * Time.deltaTime);
+            //no correction delta on min fly speed
+            currentSpeed.CurrentValue = minFlySpeed;
         }
 
     }
