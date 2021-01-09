@@ -54,9 +54,25 @@
                     "interactions": ""
                 },
                 {
-                    "name": "BreakFlight",
-                    "type": "Button",
+                    "name": "BreakLeft",
+                    "type": "Value",
                     "id": "e0cb0793-5712-4bc5-a06f-1119fc96fc62",
+                    "expectedControlType": "Integer",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "BreakRight",
+                    "type": "Button",
+                    "id": "63e10b69-ff43-43fa-9b5d-286c81084946",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "Flap",
+                    "type": "Button",
+                    "id": "15eccd3f-af53-49d5-a448-b422ef8482cf",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": ""
@@ -176,22 +192,11 @@
                 {
                     "name": "",
                     "id": "049f8f44-45f1-4106-9068-c670b96c9c45",
-                    "path": "<XInputController>/buttonWest",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Dash",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "e762f1d4-2f94-46ee-b8e4-ed06b7e4e59d",
-                    "path": "<Gamepad>/start",
+                    "path": "<XInputController>/buttonEast",
                     "interactions": "",
                     "processors": "",
                     "groups": "Gamepad",
-                    "action": "Pause",
+                    "action": "Dash",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -202,6 +207,17 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
+                    "action": "Pause",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e762f1d4-2f94-46ee-b8e4-ed06b7e4e59d",
+                    "path": "<Gamepad>/start",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
                     "action": "Pause",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -219,12 +235,34 @@
                 },
                 {
                     "name": "",
-                    "id": "0561cbc1-c073-4376-87dc-661f10df34bc",
-                    "path": "<Gamepad>/leftTrigger",
+                    "id": "3dd5fcb3-4493-4dbe-a78c-0b2516d7dcf3",
+                    "path": "<XInputController>/buttonWest",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
-                    "action": "BreakFlight",
+                    "groups": "Gamepad",
+                    "action": "Flap",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "5bf8bffa-690a-429b-8e0b-b41dcd515b25",
+                    "path": "<Gamepad>/rightTrigger",
+                    "interactions": "Press(behavior=2)",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "BreakRight",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ddaf2874-81e3-417a-9a82-5fa8ba8c438d",
+                    "path": "<Gamepad>/leftTrigger",
+                    "interactions": "Press(behavior=2)",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "BreakLeft",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

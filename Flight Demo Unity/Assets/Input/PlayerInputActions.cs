@@ -67,9 +67,25 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
                     ""interactions"": """"
                 },
                 {
-                    ""name"": ""BreakFlight"",
-                    ""type"": ""Button"",
+                    ""name"": ""BreakLeft"",
+                    ""type"": ""Value"",
                     ""id"": ""e0cb0793-5712-4bc5-a06f-1119fc96fc62"",
+                    ""expectedControlType"": ""Integer"",
+                    ""processors"": """",
+                    ""interactions"": """"
+                },
+                {
+                    ""name"": ""BreakRight"",
+                    ""type"": ""Button"",
+                    ""id"": ""63e10b69-ff43-43fa-9b5d-286c81084946"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
+                },
+                {
+                    ""name"": ""Flap"",
+                    ""type"": ""Button"",
+                    ""id"": ""15eccd3f-af53-49d5-a448-b422ef8482cf"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """"
@@ -189,22 +205,11 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""049f8f44-45f1-4106-9068-c670b96c9c45"",
-                    ""path"": ""<XInputController>/buttonWest"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Dash"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""e762f1d4-2f94-46ee-b8e4-ed06b7e4e59d"",
-                    ""path"": ""<Gamepad>/start"",
+                    ""path"": ""<XInputController>/buttonEast"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Gamepad"",
-                    ""action"": ""Pause"",
+                    ""action"": ""Dash"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -215,6 +220,17 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Keyboard&Mouse"",
+                    ""action"": ""Pause"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e762f1d4-2f94-46ee-b8e4-ed06b7e4e59d"",
+                    ""path"": ""<Gamepad>/start"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
                     ""action"": ""Pause"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
@@ -232,12 +248,34 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""0561cbc1-c073-4376-87dc-661f10df34bc"",
-                    ""path"": ""<Gamepad>/leftTrigger"",
+                    ""id"": ""3dd5fcb3-4493-4dbe-a78c-0b2516d7dcf3"",
+                    ""path"": ""<XInputController>/buttonWest"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""BreakFlight"",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""Flap"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""5bf8bffa-690a-429b-8e0b-b41dcd515b25"",
+                    ""path"": ""<Gamepad>/rightTrigger"",
+                    ""interactions"": ""Press(behavior=2)"",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""BreakRight"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ddaf2874-81e3-417a-9a82-5fa8ba8c438d"",
+                    ""path"": ""<Gamepad>/leftTrigger"",
+                    ""interactions"": ""Press(behavior=2)"",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""BreakLeft"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -662,7 +700,9 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
         m_Player_Dash = m_Player.FindAction("Dash", throwIfNotFound: true);
         m_Player_Pause = m_Player.FindAction("Pause", throwIfNotFound: true);
         m_Player_ResetCamera = m_Player.FindAction("ResetCamera", throwIfNotFound: true);
-        m_Player_BreakFlight = m_Player.FindAction("BreakFlight", throwIfNotFound: true);
+        m_Player_BreakLeft = m_Player.FindAction("BreakLeft", throwIfNotFound: true);
+        m_Player_BreakRight = m_Player.FindAction("BreakRight", throwIfNotFound: true);
+        m_Player_Flap = m_Player.FindAction("Flap", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -728,7 +768,9 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
     private readonly InputAction m_Player_Dash;
     private readonly InputAction m_Player_Pause;
     private readonly InputAction m_Player_ResetCamera;
-    private readonly InputAction m_Player_BreakFlight;
+    private readonly InputAction m_Player_BreakLeft;
+    private readonly InputAction m_Player_BreakRight;
+    private readonly InputAction m_Player_Flap;
     public struct PlayerActions
     {
         private @PlayerInputActions m_Wrapper;
@@ -739,7 +781,9 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
         public InputAction @Dash => m_Wrapper.m_Player_Dash;
         public InputAction @Pause => m_Wrapper.m_Player_Pause;
         public InputAction @ResetCamera => m_Wrapper.m_Player_ResetCamera;
-        public InputAction @BreakFlight => m_Wrapper.m_Player_BreakFlight;
+        public InputAction @BreakLeft => m_Wrapper.m_Player_BreakLeft;
+        public InputAction @BreakRight => m_Wrapper.m_Player_BreakRight;
+        public InputAction @Flap => m_Wrapper.m_Player_Flap;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -767,9 +811,15 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
                 @ResetCamera.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnResetCamera;
                 @ResetCamera.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnResetCamera;
                 @ResetCamera.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnResetCamera;
-                @BreakFlight.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnBreakFlight;
-                @BreakFlight.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnBreakFlight;
-                @BreakFlight.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnBreakFlight;
+                @BreakLeft.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnBreakLeft;
+                @BreakLeft.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnBreakLeft;
+                @BreakLeft.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnBreakLeft;
+                @BreakRight.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnBreakRight;
+                @BreakRight.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnBreakRight;
+                @BreakRight.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnBreakRight;
+                @Flap.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnFlap;
+                @Flap.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnFlap;
+                @Flap.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnFlap;
             }
             m_Wrapper.m_PlayerActionsCallbackInterface = instance;
             if (instance != null)
@@ -792,9 +842,15 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
                 @ResetCamera.started += instance.OnResetCamera;
                 @ResetCamera.performed += instance.OnResetCamera;
                 @ResetCamera.canceled += instance.OnResetCamera;
-                @BreakFlight.started += instance.OnBreakFlight;
-                @BreakFlight.performed += instance.OnBreakFlight;
-                @BreakFlight.canceled += instance.OnBreakFlight;
+                @BreakLeft.started += instance.OnBreakLeft;
+                @BreakLeft.performed += instance.OnBreakLeft;
+                @BreakLeft.canceled += instance.OnBreakLeft;
+                @BreakRight.started += instance.OnBreakRight;
+                @BreakRight.performed += instance.OnBreakRight;
+                @BreakRight.canceled += instance.OnBreakRight;
+                @Flap.started += instance.OnFlap;
+                @Flap.performed += instance.OnFlap;
+                @Flap.canceled += instance.OnFlap;
             }
         }
     }
@@ -914,7 +970,9 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
         void OnDash(InputAction.CallbackContext context);
         void OnPause(InputAction.CallbackContext context);
         void OnResetCamera(InputAction.CallbackContext context);
-        void OnBreakFlight(InputAction.CallbackContext context);
+        void OnBreakLeft(InputAction.CallbackContext context);
+        void OnBreakRight(InputAction.CallbackContext context);
+        void OnFlap(InputAction.CallbackContext context);
     }
     public interface IUIActions
     {

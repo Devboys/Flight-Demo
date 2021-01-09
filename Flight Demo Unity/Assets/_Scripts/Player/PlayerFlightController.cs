@@ -22,24 +22,29 @@ public class PlayerFlightController : PlayerMovementStateBase
     [Tooltip("The speed modifier when the player is fully tilted up or down. In units/second.")]
     [SerializeField] private float tiltAcceleration = 5;
     [Tooltip("How long it takes the player to rotate vertically around themselves. In degrees/second.")]
-    [SerializeField] private float verticalRotationSpeed = 40;
+    [SerializeField] private float basePitchSpeed = 40;
     [Tooltip("How long it takes the player to rotate horizontally around themselves. In degrees/second.")]
-    [SerializeField] private float horizontalRotationSpeed = 40;
+    [SerializeField] private float baseYawSpeed = 40;
     [Tooltip("The maximum rotation of the player from neutral position (0 rotation). In degrees.")]
-    [SerializeField] private float maxVerticalAngle = 30;
+    [SerializeField] private float maxPitchAngle = 50;
     [Tooltip("The minimum rotation of the player from neutral position (0 rotation). In degrees.")]
-    [SerializeField] private float minVerticalAngle = -30;
+    [SerializeField] private float minPitchAngle = -50;
 
     [Label("Flap cooldown/speedup delay is handled through animation events.")]
     [Header("Wing flap Settings")]
     [Tooltip("How much the player accelerates from a single wing flap.")]
     [SerializeField] private float flapSpeedMod = 2;
 
+    [Header("Wing break vars")]
+    [Tooltip("How fast the player rotates when breaking in that direction.")]
+    [SerializeField] private float breakYawSpeed = 80;
+
     [Label("Variables that this controller must check before switching to a dash state")]
     [Header("Dash transition vars")]
-    [Tooltip("Shared object that indicates whether we have a valid dash target. We cannot dash if we do not have a valid dash target")]
+    [Tooltip("Shared object that indicates whether we have a valid dash target in sight. We cannot dash if we do not have a valid dash target to dash to.")]
     [SerializeField] private BoolReference validDashTarget = null;
 
+    [Label("These shared object vars are used in other systems as read-only vars without a direct reference to the player object.")]
     [Header("Output vars")]
     [Tooltip("The shared object to hold the players current speed (used by other systems).")]
     [SerializeField] private FloatVariable currentSpeed = null;
@@ -65,7 +70,9 @@ public class PlayerFlightController : PlayerMovementStateBase
     //flap vars
     private bool isFlapping;
 
-    private bool breaking;
+    //Break vars
+    public bool isBreakingLeft;
+    public bool isBreakingRight;
 
     #region - Unity Callbacks - 
     private void Awake()
@@ -84,65 +91,28 @@ public class PlayerFlightController : PlayerMovementStateBase
         flyDirection = Vector3.forward;
     }
 
+
+    //All movement is handled in ActiveUpdate. Flight control works by rotating the current forward vector (base
     public override void ActiveUpdate()
     {
-        //update base vectors;
-        baseForward = Vector3.ProjectOnPlane(flyDirection, Vector3.up).normalized;
-        baseSideways = Vector3.Cross(baseForward, Vector3.up);
+        UpdateBaseVectors();
 
-        if (Mathf.Abs(movementInputVector.y) > 0.01f)
-        {
-            float rot = movementInputVector.y * verticalRotationSpeed * Time.deltaTime;
-            Vector3 desiredDirection = Quaternion.AngleAxis(rot, baseSideways) * flyDirection;
+        DoFlightMove();
 
-            float angle = Vector3.SignedAngle(baseForward, desiredDirection, baseSideways);
+        DoBreaking();
 
-            if (Mathf.Sign(movementInputVector.y) == 1)
-            {
-                if (angle < maxVerticalAngle)
-                {
-                    flyDirection = desiredDirection;
-                }
-                else
-                {
-                    flyDirection = GetRotatedBaseVector(false);
-                }
-            }
-            else if (Mathf.Sign(movementInputVector.y) == -1)
-            {
-                if(angle > minVerticalAngle)
-                {
-                    flyDirection = desiredDirection;
-                }
-                else
-                {
-                    flyDirection = GetRotatedBaseVector(true);
-                }
-            }
-        }
+        DoFlightGravityAccelerate();
 
-        if(Mathf.Abs(movementInputVector.x) > 0.01f)
-        {
-            flyDirection = Quaternion.AngleAxis(horizontalRotationSpeed * movementInputVector.x * Time.deltaTime, Vector3.up) * flyDirection;
-        }
+        ClampFlightSpeed();
 
-        float verticalAngle = Vector3.SignedAngle(baseForward, flyDirection, baseSideways);
-        if (verticalAngle != 0) currentSpeed.CurrentValue += - (verticalAngle / maxVerticalAngle) * tiltAcceleration * Time.deltaTime;
-        //currentSpeed.CurrentValue = Mathf.Clamp(currentSpeed.CurrentValue, minFlySpeed, maxFlySpeed);
-        if(currentSpeed.CurrentValue > maxFlySpeed)
-        {
-            currentSpeed.CurrentValue = Mathf.MoveTowards(currentSpeed.CurrentValue, maxFlySpeed, speedCorrectionDelta * Time.deltaTime);
-        }
-        else if(currentSpeed.CurrentValue < minFlySpeed)
-        {
-            currentSpeed.CurrentValue = Mathf.MoveTowards(currentSpeed.CurrentValue, minFlySpeed, speedCorrectionDelta * Time.deltaTime);
-        }
 
+        //rotate transform to face defined fly direction.
         this.transform.LookAt(transform.position + flyDirection, Vector3.up);
+        _controller.Move(flyDirection * currentSpeed.CurrentValue * Time.deltaTime);
+
+        //update shared vars
         flyDirectionVar.CurrentValue = flyDirection;
         currentPositionVar.CurrentValue = this.transform.position;
-        if(!breaking)
-            _controller.Move(flyDirection * currentSpeed.CurrentValue * Time.deltaTime);
 
     }
 
@@ -155,7 +125,6 @@ public class PlayerFlightController : PlayerMovementStateBase
     {
         UnsubscribeControls();
     }
-
 
 #if UNITY_EDITOR
     public override void ActiveDrawGizmos()
@@ -170,9 +139,9 @@ public class PlayerFlightController : PlayerMovementStateBase
             GizmoUtils.DrawVector(3, 0.2f, transform.position, baseSideways, Color.black);
 
             //draw max/min rotations as vectors
-            Vector3 maxVector = Quaternion.AngleAxis(maxVerticalAngle, baseSideways) * baseForward;
+            Vector3 maxVector = Quaternion.AngleAxis(maxPitchAngle, baseSideways) * baseForward;
             GizmoUtils.DrawVector(3, 0.2f, transform.position, maxVector, Color.blue);
-            Vector3 minVector = Quaternion.AngleAxis(minVerticalAngle, baseSideways) * baseForward;
+            Vector3 minVector = Quaternion.AngleAxis(minPitchAngle, baseSideways) * baseForward;
             GizmoUtils.DrawVector(3, 0.2f, transform.position, minVector, Color.red);
         }
         else if (Application.isEditor)
@@ -182,40 +151,125 @@ public class PlayerFlightController : PlayerMovementStateBase
             GizmoUtils.DrawVector(3, 0.2f, transform.position, transform.right, Color.black);
 
             //draw max/min rotations as vectors
-            Vector3 maxVector = Quaternion.AngleAxis(maxVerticalAngle, transform.right) * transform.forward;
-            
+            Vector3 maxVector = Quaternion.AngleAxis(maxPitchAngle, transform.right) * transform.forward;
+
             GizmoUtils.DrawVector(3, 0.2f, transform.position, maxVector, Color.blue);
-            Vector3 minVector = Quaternion.AngleAxis(minVerticalAngle, transform.right) * transform.forward;
+            Vector3 minVector = Quaternion.AngleAxis(minPitchAngle, transform.right) * transform.forward;
             GizmoUtils.DrawVector(3, 0.2f, transform.position, minVector, Color.red);
         }
     }
 #endif
 
-#endregion
+    #endregion
 
+    #region - Movement Submethods (used in update loop) - 
+
+    private void UpdateBaseVectors()
+    {
+        baseForward = Vector3.ProjectOnPlane(flyDirection, Vector3.up).normalized;
+        baseSideways = Vector3.Cross(baseForward, Vector3.up);
+    }
+
+    private void DoFlightMove()
+    {
+        //rotate direction vector vertically (around local x-axis) on up/down input.
+        if (Mathf.Abs(movementInputVector.y) > 0.01f)
+        {
+            float rot = movementInputVector.y * basePitchSpeed * Time.deltaTime;
+            Vector3 desiredDirection = Quaternion.AngleAxis(rot, baseSideways) * flyDirection;
+
+            float angle = Vector3.SignedAngle(baseForward, desiredDirection, baseSideways);
+
+            //ensure we stay within defined angle extrema
+            if (Mathf.Sign(movementInputVector.y) == 1)
+            {
+                if (angle < maxPitchAngle)
+                {
+                    flyDirection = desiredDirection;
+                }
+                else
+                {
+                    flyDirection = GetRotatedBaseVector(false);
+                }
+            }
+            else if (Mathf.Sign(movementInputVector.y) == -1)
+            {
+                if (angle > minPitchAngle)
+                {
+                    flyDirection = desiredDirection;
+                }
+                else
+                {
+                    flyDirection = GetRotatedBaseVector(true);
+                }
+            }
+        }
+
+        //rotate direction vector sideways (around y-axis) on sideways input.
+        if (Mathf.Abs(movementInputVector.x) > 0.01f)
+        {
+            flyDirection = Quaternion.AngleAxis(baseYawSpeed * movementInputVector.x * Time.deltaTime, Vector3.up) * flyDirection;
+        }
+
+    }
+
+    private void DoBreaking()
+    {
+        //Handle break right
+
+        //Handle break left
+
+    }
+
+    private void DoFlightGravityAccelerate()
+    {
+        //accelerate or decelerate when pointing down or up, respectively.
+        float verticalAngle = Vector3.SignedAngle(baseForward, flyDirection, baseSideways);
+        if (verticalAngle != 0) currentSpeed.CurrentValue += -(verticalAngle / maxPitchAngle) * tiltAcceleration * Time.deltaTime;
+    }
+
+    private void ClampFlightSpeed()
+    {
+        //clamp speed to defined extrema.
+        if (currentSpeed.CurrentValue > maxFlySpeed)
+        {
+            currentSpeed.CurrentValue = Mathf.MoveTowards(currentSpeed.CurrentValue, maxFlySpeed, speedCorrectionDelta * Time.deltaTime);
+        }
+        else if (currentSpeed.CurrentValue < minFlySpeed)
+        {
+            currentSpeed.CurrentValue = Mathf.MoveTowards(currentSpeed.CurrentValue, minFlySpeed, speedCorrectionDelta * Time.deltaTime);
+        }
+
+    }
+
+    #endregion
+
+    #region - Input Subscribers & Methods - 
     private void SubscribeControls()
     {
-        inputObject.Player.Jump.performed += Flap;
-        inputObject.Player.Movement.performed += HandleMovement;
-        inputObject.Player.Dash.performed += TryDash;
-        inputObject.Player.BreakFlight.performed += BreakSpeed;
+        inputObject.Player.Flap.performed += Input_Flap;
+        inputObject.Player.Movement.performed += Input_Movement;
+        inputObject.Player.Dash.performed += Input_TryDash;
+        inputObject.Player.BreakLeft.performed += Input_BreakLeft;
+        inputObject.Player.BreakRight.performed += Input_BreakRight;
 
     }
 
     private void UnsubscribeControls()
     {
-        inputObject.Player.Jump.performed -= Flap;
-        inputObject.Player.Movement.performed -= HandleMovement;
-        inputObject.Player.Dash.performed -= TryDash;
-        inputObject.Player.BreakFlight.performed -= BreakSpeed;
+        inputObject.Player.Flap.performed -= Input_Flap;
+        inputObject.Player.Movement.performed -= Input_Movement;
+        inputObject.Player.Dash.performed -= Input_TryDash;
+        inputObject.Player.BreakLeft.performed -= Input_BreakLeft;
+        inputObject.Player.BreakRight.performed -= Input_BreakRight;
     }
 
-    private void HandleMovement(InputAction.CallbackContext context)
+    private void Input_Movement(InputAction.CallbackContext context)
     {
         movementInputVector = context.ReadValue<Vector2>();
     }
 
-    public void TryDash(InputAction.CallbackContext context)
+    public void Input_TryDash(InputAction.CallbackContext context)
     {
         if (validDashTarget.CurrentValue == true)
         {
@@ -223,12 +277,17 @@ public class PlayerFlightController : PlayerMovementStateBase
         }
     }
 
-    public void BreakSpeed(InputAction.CallbackContext context)
+    public void Input_BreakLeft(InputAction.CallbackContext context)
     {
-        breaking = !breaking;
+        isBreakingLeft = (context.ReadValue<float>() >= 0.5f);
     }
 
-    public void Flap(InputAction.CallbackContext context)
+    public void Input_BreakRight(InputAction.CallbackContext context)
+    {
+        isBreakingRight = (context.ReadValue<float>() >= 0.5f);
+    }
+
+    public void Input_Flap(InputAction.CallbackContext context)
     {
         if (!isFlapping)
         {
@@ -236,6 +295,8 @@ public class PlayerFlightController : PlayerMovementStateBase
             _animator.SetTrigger("Flap");
         }
     }
+
+    #endregion
 
     //used by animation events
     void FlapSpeedMod()
@@ -254,7 +315,7 @@ public class PlayerFlightController : PlayerMovementStateBase
     /// </summary>
     private Vector3 GetRotatedBaseVector(bool returnMin)
     {
-        Vector3 result = Quaternion.AngleAxis((returnMin ? minVerticalAngle : maxVerticalAngle), baseSideways) * baseForward;
+        Vector3 result = Quaternion.AngleAxis((returnMin ? minPitchAngle : maxPitchAngle), baseSideways) * baseForward;
         return result;
     }
 }
