@@ -3473,7 +3473,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1323828692}
-  m_LocalRotation: {x: 0.019433452, y: -0.000000017236701, z: 3.350318e-10, w: 0.9998112}
+  m_LocalRotation: {x: 0.019433431, y: 0.000000017236696, z: -3.3503142e-10, w: 0.9998112}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -5903,11 +5903,13 @@ MonoBehaviour:
   maxFlySpeed: 50
   speedCorrectionDelta: 5
   tiltAcceleration: 3
-  pitchSpeed: 40
-  yawSpeed: 40
+  basePitchSpeed: 40
+  baseYawSpeed: 40
   maxPitchAngle: 50
   minPitchAngle: -50
   flapSpeedMod: 8
+  breakFlightDeceleration: -4
+  breakYawSpeedMod: 40
   validDashTarget:
     UseLocalVariable: 0
     LocalVariable: 0

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Devboys.SharedObjects.Variables;
 using UnityEngine.InputSystem;
+using System;
 
 [DisallowMultipleComponent]
 [RequireComponent(typeof(PlayerDashController))]
@@ -32,12 +33,14 @@ public class PlayerFlightController : PlayerMovementStateBase
 
     [Label("Flap cooldown/speedup delay is handled through animation events.")]
     [Header("Wing flap Settings")]
-    [Tooltip("How much the player accelerates from a single wing flap.")]
-    [SerializeField] private float flapSpeedMod = 2;
+    [Tooltip("How much the player accelerates from a single wing flap. In units/second.")]
+    [SerializeField] private float flapSpeedMod = 8;
 
     [Header("Wing break vars")]
-    [Tooltip("How fast the player rotates when breaking in that direction.")]
-    [SerializeField] private float breakYawSpeed = 80;
+    [Tooltip("How much the player slows down when breaking with a wing. Applies doubly when breaking with both wings. In units/second.")]
+    [SerializeField] private float breakFlightDeceleration = -4;
+    [Tooltip("How much faster the player rotates horizontally when breaking either left or right. In degrees/second.")]
+    [SerializeField] private float breakYawSpeedMod = -40;
 
     [Label("Variables that this controller must check before switching to a dash state")]
     [Header("Dash transition vars")]
@@ -69,10 +72,13 @@ public class PlayerFlightController : PlayerMovementStateBase
 
     //flap vars
     private bool isFlapping;
+    public Action onFlapStart;
+    public Action onFlapEnd;
 
     //Break vars
     public bool isBreakingLeft;
     public bool isBreakingRight;
+
 
     #region - Unity Callbacks - 
     private void Awake()
@@ -99,12 +105,11 @@ public class PlayerFlightController : PlayerMovementStateBase
 
         DoFlightMove();
 
-        DoBreaking();
+        DoWingBreak();
 
         DoFlightGravityAccelerate();
 
         ClampFlightSpeed();
-
 
         //rotate transform to face defined fly direction.
         this.transform.LookAt(transform.position + flyDirection, Vector3.up);
@@ -119,11 +124,33 @@ public class PlayerFlightController : PlayerMovementStateBase
     public override void HandleStateActivate()
     {
         SubscribeControls();
+        SubscribeAnimationEvents();
     }
 
     public override void HandleStateDeactivate()
     {
         UnsubscribeControls();
+        UnsubscribeAnimationEvents();
+    }
+
+    public void OnValidate()
+    {
+        ValidateUtils.EnsurePositiveOrZero(ref initialFlySpeed);
+        ValidateUtils.EnsurePositiveOrZero(ref minFlySpeed);
+        ValidateUtils.EnsurePositiveOrZero(ref maxFlySpeed);
+        ValidateUtils.EnsurePositiveOrZero(ref speedCorrectionDelta);
+
+        ValidateUtils.EnsurePositiveOrZero(ref tiltAcceleration);
+        ValidateUtils.EnsurePositiveOrZero(ref basePitchSpeed);
+        ValidateUtils.EnsurePositiveOrZero(ref baseYawSpeed);
+
+        ValidateUtils.EnsureNegativeOrZero(ref minPitchAngle);
+        ValidateUtils.EnsurePositiveOrZero(ref maxPitchAngle);
+
+        ValidateUtils.EnsurePositiveOrZero(ref flapSpeedMod);
+
+        ValidateUtils.EnsureNegativeOrZero(ref breakFlightDeceleration);
+        ValidateUtils.EnsurePositiveOrZero(ref breakYawSpeedMod);
     }
 
 #if UNITY_EDITOR
@@ -163,7 +190,6 @@ public class PlayerFlightController : PlayerMovementStateBase
     #endregion
 
     #region - Movement Submethods (used in update loop) - 
-
     private void UpdateBaseVectors()
     {
         baseForward = Vector3.ProjectOnPlane(flyDirection, Vector3.up).normalized;
@@ -213,12 +239,27 @@ public class PlayerFlightController : PlayerMovementStateBase
 
     }
 
-    private void DoBreaking()
+    private void DoWingBreak()
     {
-        //Handle break right
-
         //Handle break left
+        if (isBreakingLeft)
+        {
+            //decelerate
+            currentSpeed.CurrentValue += breakFlightDeceleration * Time.deltaTime;
 
+            //rotate flight vector
+            flyDirection = Quaternion.AngleAxis(-breakYawSpeedMod * Time.deltaTime, Vector3.up) * flyDirection;
+        }
+
+        //Handle break right
+        if (isBreakingRight)
+        {
+            //decelerate
+            currentSpeed.CurrentValue += breakFlightDeceleration * Time.deltaTime;
+
+            //rotate flight vector
+            flyDirection = Quaternion.AngleAxis(breakYawSpeedMod * Time.deltaTime, Vector3.up) * flyDirection;
+        }
     }
 
     private void DoFlightGravityAccelerate()
@@ -241,7 +282,6 @@ public class PlayerFlightController : PlayerMovementStateBase
         }
 
     }
-
     #endregion
 
     #region - Input Subscribers & Methods - 
@@ -298,17 +338,53 @@ public class PlayerFlightController : PlayerMovementStateBase
 
     #endregion
 
-    //used by animation events
-    void FlapSpeedMod()
+    #region - Animation Event Handlers -
+
+    /// <summary>
+    /// Used by animation events only
+    /// </summary>
+    public void Animation_HandleFlapStart()
+    {
+        onFlapStart?.Invoke();
+    }
+    /// <summary>
+    /// Used by animation events only
+    /// </summary>
+    public void Animation_HandleFlapEnd()
+    {
+        onFlapEnd?.Invoke();
+    }
+
+
+    /// <summary>
+    /// Subscribes methods to their corresponding animation-event actions.
+    /// </summary>
+    public void SubscribeAnimationEvents()
+    {
+        onFlapStart += FlapAccelerate;
+        onFlapEnd += EndFlap;
+    }
+
+    /// <summary>
+    /// Subscribes methods from their corresponding animation-event actions.
+    /// </summary>
+    public void UnsubscribeAnimationEvents()
+    {
+        onFlapStart -= FlapAccelerate;
+        onFlapEnd -= EndFlap;
+    }
+
+    void FlapAccelerate()
     {
         currentSpeed.CurrentValue += flapSpeedMod;
     }
 
-    //used by animation events
     void EndFlap()
     {
         isFlapping = false;
     }
+
+    #endregion
 
     /// <summary>
     /// Returns a vector rotated exactly to the degrees indicated by either minVerticalRotation or maxVerticalRotation. 

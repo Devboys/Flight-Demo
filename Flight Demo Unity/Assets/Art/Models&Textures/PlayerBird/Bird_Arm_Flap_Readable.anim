@@ -12373,14 +12373,14 @@ AnimationClip:
   m_HasMotionFloatCurves: 0
   m_Events:
   - time: 0.5
-    functionName: FlapSpeedMod
+    functionName: Animation_HandleFlapStart
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
   - time: 1.625
-    functionName: EndFlap
+    functionName: Animation_HandleFlapEnd
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0

@@ -13,6 +13,9 @@ namespace Devboys.SharedObjects.Variables
 
         public T DefaultValue => _defaultValue; //readonly default value
 
+        /// <summary>
+        /// The current value of this shared variable
+        /// </summary>
         public T CurrentValue
         {
             get { return currentValue; }
