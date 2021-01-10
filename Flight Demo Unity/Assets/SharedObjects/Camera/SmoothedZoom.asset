@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3b9c0e7abe965424c9a865e991018444, type: 3}
-  m_Name: CurrentZoom
+  m_Name: SmoothedZoom
   m_EditorClassIdentifier: 
-  description: The current zoom of the locked camera. Used to synchronize zoom levels.
+  description: ' - Describe the purpose of this object here - '
   _defaultValue: 10
   currentValue: 0

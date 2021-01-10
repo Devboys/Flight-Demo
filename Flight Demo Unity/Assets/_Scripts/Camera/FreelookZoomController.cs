@@ -11,9 +11,9 @@ using Cinemachine;
 public class FreelookZoomController : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private FloatReference lockedCamZoom;
+    [SerializeField] private FloatReference zoomRef;
 
-    [Header("Base values")]
+    [Header("Settings")]
     [SerializeField] private float lockedZoomRadius = 10;
     [SerializeField] private float lowerUpperOffset = -3;
     [Tooltip("When transitioning from locked to freelook camera, this value controls how fast the zoom returns to the locked zoom radius")]
@@ -58,7 +58,7 @@ public class FreelookZoomController : MonoBehaviour
         else
         {
             //follow locked cam zoom
-            targetRadius = lockedCamZoom.CurrentValue;
+            targetRadius = zoomRef.CurrentValue;
         }
 
         currentZoom = targetRadius;
@@ -84,7 +84,7 @@ public class FreelookZoomController : MonoBehaviour
     /// </summary>
     public void LockZoom()
     {
-        smoothedRadius = lockedCamZoom.CurrentValue;
+        smoothedRadius = zoomRef.CurrentValue;
         zoomLocked = true;
     }
 

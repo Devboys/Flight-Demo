@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_CustomBlends:
   - m_From: CM_Flight_Locked
-    m_To: CM_Flight_FreeLook
+    m_To: CM_Flight_Free
     m_Blend:
       m_Style: 2
       m_Time: 0.2
@@ -24,7 +24,7 @@ MonoBehaviour:
         m_PreInfinity: 0
         m_PostInfinity: 0
         m_RotationOrder: 0
-  - m_From: CM_Flight_FreeLook
+  - m_From: CM_Flight_Free
     m_To: CM_Flight_Locked
     m_Blend:
       m_Style: 1
