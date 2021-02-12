@@ -5,7 +5,7 @@ using Devboys.SharedObjects.Variables;
 
 public class DashUIHandler : MonoBehaviour
 {
-    [SerializeField] private VectorReference currentDashTarget = null;
+    [SerializeField] private TransformReference currentDashTarget = null;
     [SerializeField] private BoolReference currentDashTargetValid = null;
     [SerializeField] private GameObject DashUIPrefab = null;
 
@@ -33,7 +33,7 @@ public class DashUIHandler : MonoBehaviour
 
         if (currentDashTargetValid.CurrentValue)
         {
-            Vector3 dashTargetPos = currentDashTarget.CurrentValue;
+            Vector3 dashTargetPos = currentDashTarget.CurrentValue.position;
             dashUIObject.position = mainCam.WorldToScreenPoint(dashTargetPos);
         }
     }

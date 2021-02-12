@@ -11,7 +11,7 @@ public class DashTargetHandler : MonoBehaviour
     [SerializeField] private VectorReference playerPositionVar = null;
 
     [Header("Output")]
-    [SerializeField] private VectorVariable currentDashTargetVar = null;
+    [SerializeField] private TransformVariable currentDashTargetVar = null;
     [SerializeField] private BoolVariable dashTargetValid = null;
 
     [Header("Settings")]
@@ -35,7 +35,7 @@ public class DashTargetHandler : MonoBehaviour
         DashTarget closestTarget = GetClosestValidTarget(playerPositionVar.CurrentValue);
         if (closestTarget != null)
         {
-            currentDashTargetVar.CurrentValue = closestTarget.transform.position;
+            currentDashTargetVar.CurrentValue = closestTarget.transform;
             dashTargetValid.CurrentValue = true;
         }
         else

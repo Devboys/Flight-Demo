@@ -1,4 +1,5 @@
 ﻿using Devboys.SharedObjects.Variables;
+using Devboys.SharedObjects.Events;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,12 +7,16 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class PlayerDashController : PlayerMovementStateBase
 {
-    public VectorReference currentDashTarget;
+    public TransformReference currentDashTarget;
     public float dashSpeed = 35f;
+
+    [Header("Events")]
+    [SerializeField] private GameEvent dashStartEvent;
+    [SerializeField] private GameEvent dashEndEvent;
 
     public FloatVariable currentSpeed;
 
-    private Vector3 dashTarget;
+    private Vector3 dashTargetPos;
     private Vector3 dashDirection;
     private float dashTimer; //time to reach dashtarget with dashspeed;
     private float dashDistance;
@@ -26,12 +31,14 @@ public class PlayerDashController : PlayerMovementStateBase
     public override void HandleStateActivate()
     {
         //prep dash vars
-        dashTarget = currentDashTarget.CurrentValue;
-        dashDirection = (dashTarget - transform.position).normalized;
-        dashDistance = Vector3.Distance(dashTarget, transform.position);
+        dashTargetPos = currentDashTarget.CurrentValue.position;
+        dashDirection = (dashTargetPos - transform.position).normalized;
+        dashDistance = Vector3.Distance(dashTargetPos, transform.position);
         dashTimer = dashDistance / dashSpeed;
 
         currentSpeed.CurrentValue = dashSpeed;
+
+        dashStartEvent.Raise();
     }
 
     public override void ActiveUpdate()
@@ -46,5 +53,10 @@ public class PlayerDashController : PlayerMovementStateBase
         {
             parentHandler.SwitchToState<PlayerFlightController>();
         }
+    }
+
+    public override void HandleStateDeactivate()
+    {
+        dashEndEvent.Raise();
     }
 }

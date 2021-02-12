@@ -5,11 +5,14 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using Cinemachine;
 
-public class CameraSwitcher : MonoBehaviour
+public class CameraMasterController : MonoBehaviour
 {
     [Header("Camera refs")]
     [SerializeField] private CinemachineVirtualCamera lockedCamera = null; //locked behind player.
     [SerializeField] private CinemachineFreeLook freeLookCamera = null; //used to orbit the player.
+    [SerializeField] private CinemachineVirtualCamera dashCamera = null; //Camera shot definition used when dashing.
+
+    public Transform testObjectLook;
 
     [Header("Switch settings")]
     [Tooltip("The amount of seconds to wait before resetting free-look camera back to locked camera. Reset when player moves the camera.")]
@@ -33,6 +36,7 @@ public class CameraSwitcher : MonoBehaviour
     {
         lockedCamera.Priority = 1;
         freeLookCamera.Priority = 0;
+        dashCamera.Priority = 0;
 
         resetCamTimer = 0;
 
@@ -80,7 +84,7 @@ public class CameraSwitcher : MonoBehaviour
         lockedCamera.Priority = 1;
         freeLookCamera.Priority = 0;
 
-        //We have to delay resetting the freelook camera for a bit because we need the transitions to play out properly in cinemachine.
+        //We have to delay resetting the freelook camera for a bit because we need the automatic cinemachine transitions to play out properly.
         transitionCoroutine = StartCoroutine(CoroutineUtils.WaitThenCallBack(0.3f, () => 
             {   
                 freeLookCamera.m_XAxis.Value = 0f;
@@ -104,5 +108,18 @@ public class CameraSwitcher : MonoBehaviour
         lockedCamera.Priority = 0;
 
         freeZoomController.LockZoom();
+    }
+
+    public void LockedToDashCamera()
+    {
+        dashCamera.m_LookAt = testObjectLook;
+        dashCamera.Priority = 1;
+        lockedCamera.Priority = 0;
+    }
+
+    public void DashToLockedCamera()
+    {
+        lockedCamera.Priority = 1;
+        dashCamera.Priority = 0;
     }
 }
