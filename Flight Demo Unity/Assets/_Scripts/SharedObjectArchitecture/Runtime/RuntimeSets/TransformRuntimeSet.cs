@@ -8,6 +8,6 @@ namespace Devboys.SharedObjects.RuntimeSets
     [CreateAssetMenu(menuName = "SharedObjects/Lists/Transform Set")]
     public class TransformRuntimeSet : RuntimeSet<Transform>
     {
-        //functionality handles by SharedNumericVariable base class
+        //functionality handles by RuntimeSet base class
     }
 }

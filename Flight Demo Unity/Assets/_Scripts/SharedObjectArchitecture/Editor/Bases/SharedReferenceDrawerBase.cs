@@ -89,8 +89,20 @@ namespace Devboys.SharedObjects.EditorObjects
             EditorGUI.EndProperty();
         }
 
+        /// <summary>
+        /// Called when the UI draws the local version of the reference
+        /// </summary>
+        /// <param name="position"> The GUI position of the reference field. </param>
+        /// <param name="property"> The SerializedProperty attempting to be drawn. </param>
+        /// <param name="label"> The Label of the field. </param>
         protected abstract void DrawLocalVariable(Rect position, SerializedProperty property, GUIContent label);
 
+        /// <summary>
+        /// Called when the UI draws the shared version of the reference
+        /// </summary>
+        /// <param name="position"> The GUI position of the reference field. </param>
+        /// <param name="property"> The SerializedProperty attempting to be drawn. </param>
+        /// <param name="label"> The Label of the field. </param>
         protected abstract void DrawSharedVariable(Rect position, SerializedProperty property, GUIContent label);
 
         protected abstract void HandlePreGUI();
