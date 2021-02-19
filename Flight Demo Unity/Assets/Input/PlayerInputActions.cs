@@ -89,6 +89,14 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """"
+                },
+                {
+                    ""name"": ""TestButton"",
+                    ""type"": ""Button"",
+                    ""id"": ""a562d9de-1969-4280-aedc-d9a4393bd1a0"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
                 }
             ],
             ""bindings"": [
@@ -276,6 +284,17 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
                     ""processors"": """",
                     ""groups"": ""Gamepad"",
                     ""action"": ""BreakLeft"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e292852a-6645-4041-9797-fbe92a1d0bea"",
+                    ""path"": ""<Gamepad>/select"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""TestButton"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -703,6 +722,7 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
         m_Player_BreakLeft = m_Player.FindAction("BreakLeft", throwIfNotFound: true);
         m_Player_BreakRight = m_Player.FindAction("BreakRight", throwIfNotFound: true);
         m_Player_Flap = m_Player.FindAction("Flap", throwIfNotFound: true);
+        m_Player_TestButton = m_Player.FindAction("TestButton", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -771,6 +791,7 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
     private readonly InputAction m_Player_BreakLeft;
     private readonly InputAction m_Player_BreakRight;
     private readonly InputAction m_Player_Flap;
+    private readonly InputAction m_Player_TestButton;
     public struct PlayerActions
     {
         private @PlayerInputActions m_Wrapper;
@@ -784,6 +805,7 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
         public InputAction @BreakLeft => m_Wrapper.m_Player_BreakLeft;
         public InputAction @BreakRight => m_Wrapper.m_Player_BreakRight;
         public InputAction @Flap => m_Wrapper.m_Player_Flap;
+        public InputAction @TestButton => m_Wrapper.m_Player_TestButton;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -820,6 +842,9 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
                 @Flap.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnFlap;
                 @Flap.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnFlap;
                 @Flap.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnFlap;
+                @TestButton.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnTestButton;
+                @TestButton.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnTestButton;
+                @TestButton.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnTestButton;
             }
             m_Wrapper.m_PlayerActionsCallbackInterface = instance;
             if (instance != null)
@@ -851,6 +876,9 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
                 @Flap.started += instance.OnFlap;
                 @Flap.performed += instance.OnFlap;
                 @Flap.canceled += instance.OnFlap;
+                @TestButton.started += instance.OnTestButton;
+                @TestButton.performed += instance.OnTestButton;
+                @TestButton.canceled += instance.OnTestButton;
             }
         }
     }
@@ -973,6 +1001,7 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
         void OnBreakLeft(InputAction.CallbackContext context);
         void OnBreakRight(InputAction.CallbackContext context);
         void OnFlap(InputAction.CallbackContext context);
+        void OnTestButton(InputAction.CallbackContext context);
     }
     public interface IUIActions
     {

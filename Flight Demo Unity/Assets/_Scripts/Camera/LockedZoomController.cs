@@ -10,6 +10,8 @@ public class LockedZoomController : MonoBehaviour
     [Header("References")]
     [SerializeField] private FloatReference zoomRef;
 
+    public float fovMultiplier = 2;
+
     //cached components
     private CinemachineVirtualCamera _CMCamera;
     private CinemachineTransposer CMTransposer;

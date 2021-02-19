@@ -19,15 +19,15 @@ public class PauseMenuHandler : MonoBehaviour
 
     private EventSystem _eventSystem;
 
-    private void Awake()
+    private void Start()
     {
-        playerInput = FindObjectOfType<SharedPlayerInput>().GetPlayerInput();
-        _eventSystem = EventSystem.current;
-        
+
     }
 
     private void SubscribeControls()
     {
+        playerInput = SharedPlayerInput.GetSceneInstance().GetPlayerInput();
+        _eventSystem = EventSystem.current;
         playerInput.UI.Cancel.performed += HandleReturn;
     }
 

@@ -9,10 +9,10 @@ public class PauseMenuActivator : MonoBehaviour
 
     public PlayerInputActions playerInput;
 
-    public void Awake()
-    {
-        playerInput = FindObjectOfType<SharedPlayerInput>().GetPlayerInput();
-    }
+    //public void Start()
+    //{
+    //    playerInput = SharedPlayerInput.GetSceneInstance().GetPlayerInput();
+    //}
 
     public void SubscribeControls()
     {
@@ -26,6 +26,7 @@ public class PauseMenuActivator : MonoBehaviour
 
     private void OnEnable()
     {
+        playerInput = SharedPlayerInput.GetSceneInstance().GetPlayerInput();
         SubscribeControls();
     }
 

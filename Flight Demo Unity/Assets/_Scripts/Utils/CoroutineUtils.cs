@@ -14,4 +14,10 @@ public static class CoroutineUtils
         callback.Invoke();
     }
 
+    public static IEnumerator InvokeNextFrame(Action callback)
+    {
+        yield return null; //skip this frame
+        callback.Invoke();
+    }
+
 }

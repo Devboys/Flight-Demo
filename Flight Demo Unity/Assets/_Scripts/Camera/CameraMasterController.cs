@@ -4,19 +4,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Cinemachine;
+using Devboys.SharedObjects.Variables;
 
 public class CameraMasterController : MonoBehaviour
 {
-    [Header("Camera refs")]
+    [Header("Generic Flight")]
     [SerializeField] private CinemachineVirtualCamera lockedCamera = null; //locked behind player.
     [SerializeField] private CinemachineFreeLook freeLookCamera = null; //used to orbit the player.
-    [SerializeField] private CinemachineVirtualCamera dashCamera = null; //Camera shot definition used when dashing.
-
-    public Transform testObjectLook;
-
-    [Header("Switch settings")]
     [Tooltip("The amount of seconds to wait before resetting free-look camera back to locked camera. Reset when player moves the camera.")]
     [SerializeField] private float resetWaitTime = 10;
+
+    [Header("Dash Camera")]
+    [SerializeField] private CinemachineVirtualCamera dashCamera = null; //Camera shot used when dashing.
+    public TransformReference currentDashTarget;
 
     // ---- Private vars ----
     private PlayerInputActions inputActions;
@@ -40,7 +40,7 @@ public class CameraMasterController : MonoBehaviour
 
         resetCamTimer = 0;
 
-        inputActions = FindObjectOfType<SharedPlayerInput>().GetPlayerInput();
+        inputActions = SharedPlayerInput.GetSceneInstance().GetPlayerInput();
         inputActions.Player.Look.performed += Look_performed;
         inputActions.Player.ResetCamera.performed += ResetCamera_performed;
 
@@ -112,14 +112,22 @@ public class CameraMasterController : MonoBehaviour
 
     public void LockedToDashCamera()
     {
-        dashCamera.m_LookAt = testObjectLook;
+        dashCamera.transform.eulerAngles = Camera.main.transform.eulerAngles;
         dashCamera.Priority = 1;
         lockedCamera.Priority = 0;
+
+        
+        IEnumerator resetCoroutine = CoroutineUtils.InvokeNextFrame(() =>
+        {
+            lockedCamera.Priority = 1;
+            dashCamera.Priority = 0;
+        });
+        StartCoroutine(resetCoroutine);
     }
 
     public void DashToLockedCamera()
     {
-        lockedCamera.Priority = 1;
-        dashCamera.Priority = 0;
+        //lockedCamera.Priority = 1;
+        //dashCamera.Priority = 0;
     }
 }

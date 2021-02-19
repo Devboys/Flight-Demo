@@ -16,7 +16,7 @@ public class SharedPlayerInput : MonoBehaviour
         playerInput.UI.Disable();
         playerInput.Player.Enable();
 
-        if (FindObjectsOfType<SharedPlayerInput>().Length > 1) Debug.LogError("Multiple Input Handlers in Scene!");
+        if (FindObjectsOfType<SharedPlayerInput>().Length > 1) Debug.LogError("Multiple Shared Input Handlers in Scene!");
     }
 
     public void OnEnable()
@@ -32,5 +32,13 @@ public class SharedPlayerInput : MonoBehaviour
     public PlayerInputActions GetPlayerInput()
     {
         return playerInput;
+    }
+
+    /// <summary>
+    /// Returns this input object from the current scene (if it exists)
+    /// </summary>
+    public static SharedPlayerInput GetSceneInstance()
+    {
+        return FindObjectOfType<SharedPlayerInput>();
     }
 }

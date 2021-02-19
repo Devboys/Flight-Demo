@@ -9,6 +9,7 @@ public class PlayerDashController : PlayerMovementStateBase
 {
     public TransformReference currentDashTarget;
     public float dashSpeed = 35f;
+    public float turnSpeed = 2;
 
     [Header("Events")]
     [SerializeField] private GameEvent dashStartEvent;
@@ -43,6 +44,10 @@ public class PlayerDashController : PlayerMovementStateBase
 
     public override void ActiveUpdate()
     {
+        //Vector3 currentDir = transform.forward;
+        //Vector3 targetDir = dashDirection;
+        //Vector3 lerpedDir = Vector3.MoveTowards(currentDir, targetDir, turnSpeed * Time.deltaTime);
+        //transform.LookAt(transform.position + lerpedDir.normalized, Vector3.up);
         transform.LookAt(this.transform.position + dashDirection.normalized, Vector3.up);
 
         _charController.Move(dashDirection * currentSpeed.CurrentValue * Time.deltaTime);

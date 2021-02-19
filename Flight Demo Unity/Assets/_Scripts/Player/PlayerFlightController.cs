@@ -87,14 +87,15 @@ public class PlayerFlightController : PlayerMovementStateBase
         _controller = GetComponent<CharacterController>();
         _animator = GetComponent<Animator>();
 
-        inputObject = FindObjectOfType<SharedPlayerInput>().GetPlayerInput();
+        
 
         currentSpeed.CurrentValue = initialFlySpeed;
     }
 
     private void Start()
     {
-        flyDirection = Vector3.forward;
+        inputObject = SharedPlayerInput.GetSceneInstance().GetPlayerInput();
+        //flyDirection = Vector3.forward;
     }
 
 
@@ -123,6 +124,9 @@ public class PlayerFlightController : PlayerMovementStateBase
 
     public override void HandleStateActivate()
     {
+        //flydirection is set on state activate to things like maintaing fly-direction when we end a dash.
+        flyDirection = transform.forward;
+
         SubscribeControls();
         SubscribeAnimationEvents();
     }
@@ -293,7 +297,6 @@ public class PlayerFlightController : PlayerMovementStateBase
         inputObject.Player.Dash.performed += Input_TryDash;
         inputObject.Player.BreakLeft.performed += Input_BreakLeft;
         inputObject.Player.BreakRight.performed += Input_BreakRight;
-
     }
 
     private void UnsubscribeControls()
@@ -314,6 +317,8 @@ public class PlayerFlightController : PlayerMovementStateBase
     {
         if (validDashTarget.CurrentValue == true)
         {
+            //Debug.Break();
+            //StartCoroutine(CoroutineUtils.InvokeNextFrame(() => { parentHandler.SwitchToState<PlayerDashController>(); }));
             parentHandler.SwitchToState<PlayerDashController>();
         }
     }
