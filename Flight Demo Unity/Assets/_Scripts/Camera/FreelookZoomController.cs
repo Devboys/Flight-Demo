@@ -12,10 +12,12 @@ public class FreelookZoomController : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private FloatReference zoomRef;
+    [SerializeField] private SO_SpeedFXVars settingVars;
 
     [Header("Settings")]
     [SerializeField] private float lockedZoomRadius = 10;
     [SerializeField] private float lowerUpperOffset = -3;
+
     [Tooltip("When transitioning from locked to freelook camera, this value controls how fast the zoom returns to the locked zoom radius")]
     [SerializeField] private float zoomSpeed = 2;
 
@@ -64,6 +66,7 @@ public class FreelookZoomController : MonoBehaviour
         currentZoom = targetRadius;
 
         SetRigRadii(targetRadius);
+        _CMCamera.m_Lens.FieldOfView = settingVars.ZoomToFOV(targetRadius);
     }
     #endregion
 

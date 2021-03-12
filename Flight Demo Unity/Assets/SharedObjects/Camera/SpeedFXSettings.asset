@@ -2,16 +2,20 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
-  m_ObjectHideFlags: 32
+  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b9c0e7abe965424c9a865e991018444, type: 3}
-  m_Name: CurrentZoom
+  m_Script: {fileID: 11500000, guid: e5acd0503f9d6c6459c6980b114f5a9f, type: 3}
+  m_Name: SpeedFXSettings
   m_EditorClassIdentifier: 
-  description: The current zoom of the locked camera. Used to synchronize zoom levels.
-  _defaultValue: 10
-  currentValue: 0
+  smoothSpeed: 0.2
+  minZoom: 10
+  maxZoom: 30
+  minFOV: 40
+  maxFOV: 70
+  minSpeed: 5
+  maxSpeed: 20

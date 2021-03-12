@@ -227,7 +227,7 @@ GameObject:
   - component: {fileID: 136443760}
   - component: {fileID: 136443761}
   m_Layer: 0
-  m_Name: FlightZoomManager
+  m_Name: FlightSpeedEffectManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -265,9 +265,13 @@ MonoBehaviour:
     SharedVariable: {fileID: 11400000, guid: da741c31886eadf4b82966c257e48b0e, type: 2}
   currentZoom: {fileID: 11400000, guid: 6a96804397e7c024eb9a71779aef568a, type: 2}
   smoothedZoom: {fileID: 11400000, guid: cc7d600d13e362344bfd0dbb4b063972, type: 2}
+  currentFOV: {fileID: 11400000, guid: dfdd16b21048edb46857feb600516d76, type: 2}
+  smoothedFOV: {fileID: 11400000, guid: 0a9ed5e92d109b846b7372884b403d6e, type: 2}
   minZoom: 10
   maxZoom: 30
-  zoomSpeed: 5
+  smoothZoomSpeed: 0.2
+  minFOV: 40
+  maxFOV: 70
   minSpeed: 5
   maxSpeed: 20
 --- !u!1 &138079979
@@ -5312,7 +5316,12 @@ MonoBehaviour:
     UseLocalVariable: 0
     LocalVariable: 0
     SharedVariable: {fileID: 11400000, guid: cc7d600d13e362344bfd0dbb4b063972, type: 2}
+  fovRef:
+    UseLocalVariable: 0
+    LocalVariable: 0
+    SharedVariable: {fileID: 11400000, guid: 0a9ed5e92d109b846b7372884b403d6e, type: 2}
   lockedZoomRadius: 10
+  lockedFOV: 0
   lowerUpperOffset: -3
   zoomSpeed: 24
   currentZoom: 0
@@ -5552,7 +5561,10 @@ MonoBehaviour:
     UseLocalVariable: 0
     LocalVariable: 10
     SharedVariable: {fileID: 11400000, guid: cc7d600d13e362344bfd0dbb4b063972, type: 2}
-  fovMultiplier: 0.5
+  fovRef:
+    UseLocalVariable: 0
+    LocalVariable: 0
+    SharedVariable: {fileID: 11400000, guid: 0a9ed5e92d109b846b7372884b403d6e, type: 2}
 --- !u!1001 &1331788289
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6118,7 +6130,10 @@ MonoBehaviour:
     UseLocalVariable: 0
     LocalVariable: 0
     SharedVariable: {fileID: 11400000, guid: cc7d600d13e362344bfd0dbb4b063972, type: 2}
-  fovMultiplier: 2
+  fovRef:
+    UseLocalVariable: 0
+    LocalVariable: 0
+    SharedVariable: {fileID: 11400000, guid: 0a9ed5e92d109b846b7372884b403d6e, type: 2}
 --- !u!4 &1406933769 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5359530883935663317, guid: f947fff6120fdbf468fc1a6ec2bddd60,
@@ -6149,7 +6164,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1425441797}
-  m_LocalRotation: {x: 0.019433431, y: -0.000000017236696, z: 3.3503142e-10, w: 0.9998112}
+  m_LocalRotation: {x: 0.019433452, y: 0.000000017236701, z: -3.350318e-10, w: 0.9998112}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
