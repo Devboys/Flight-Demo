@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using Devboys.SharedObjects.Variables;
 using UnityEngine.InputSystem;
 using System;
@@ -72,12 +70,8 @@ public class PlayerFlightController : PlayerMovementStateBase
 
     //flap vars
     private bool isFlapping;
-    public Action onFlapStart;
-    public Action onFlapEnd;
-
-    //Break vars
-    public bool isBreakingLeft;
-    public bool isBreakingRight;
+    private Action onFlapStart;
+    private Action onFlapEnd;
 
 
     #region - Unity Callbacks - 
@@ -118,7 +112,7 @@ public class PlayerFlightController : PlayerMovementStateBase
 
         //update shared vars
         flyDirectionVar.CurrentValue = flyDirection;
-        currentPositionVar.CurrentValue = this.transform.position;
+        currentPositionVar.CurrentValue = transform.position;
 
     }
 
@@ -135,6 +129,7 @@ public class PlayerFlightController : PlayerMovementStateBase
     {
         UnsubscribeControls();
         UnsubscribeAnimationEvents();
+        EndFlap();
     }
 
     public void OnValidate()
@@ -160,33 +155,35 @@ public class PlayerFlightController : PlayerMovementStateBase
 #if UNITY_EDITOR
     public override void ActiveDrawGizmos()
     {
+        Vector3 currentPos = transform.position;
+        
         if (Application.isPlaying)
         {
             //draw forward vector
-            GizmoUtils.DrawVector(3, 0.2f, transform.position, flyDirection, Color.cyan);
+            GizmoUtils.DrawVector(3, 0.2f, currentPos, flyDirection, Color.cyan);
 
             //draw unrotated forward vector
-            GizmoUtils.DrawVector(3, 0.2f, transform.position, baseForward, Color.yellow);
-            GizmoUtils.DrawVector(3, 0.2f, transform.position, baseSideways, Color.black);
+            GizmoUtils.DrawVector(3, 0.2f, currentPos, baseForward, Color.yellow);
+            GizmoUtils.DrawVector(3, 0.2f, currentPos, baseSideways, Color.black);
 
             //draw max/min rotations as vectors
             Vector3 maxVector = Quaternion.AngleAxis(maxPitchAngle, baseSideways) * baseForward;
-            GizmoUtils.DrawVector(3, 0.2f, transform.position, maxVector, Color.blue);
+            GizmoUtils.DrawVector(3, 0.2f, currentPos, maxVector, Color.blue);
             Vector3 minVector = Quaternion.AngleAxis(minPitchAngle, baseSideways) * baseForward;
-            GizmoUtils.DrawVector(3, 0.2f, transform.position, minVector, Color.red);
+            GizmoUtils.DrawVector(3, 0.2f, currentPos, minVector, Color.red);
         }
         else if (Application.isEditor)
         {
             //draw base vectors (these are just transform.forward and transform.right in edit mode)
-            GizmoUtils.DrawVector(3, 0.2f, transform.position, transform.forward, Color.yellow);
-            GizmoUtils.DrawVector(3, 0.2f, transform.position, transform.right, Color.black);
+            GizmoUtils.DrawVector(3, 0.2f, currentPos, transform.forward, Color.yellow);
+            GizmoUtils.DrawVector(3, 0.2f, currentPos, transform.right, Color.black);
 
             //draw max/min rotations as vectors
-            Vector3 maxVector = Quaternion.AngleAxis(maxPitchAngle, transform.right) * transform.forward;
+            Vector3 maxVector = Quaternion.AngleAxis(maxPitchAngle, currentPos) * transform.forward;
 
-            GizmoUtils.DrawVector(3, 0.2f, transform.position, maxVector, Color.blue);
+            GizmoUtils.DrawVector(3, 0.2f, currentPos, maxVector, Color.blue);
             Vector3 minVector = Quaternion.AngleAxis(minPitchAngle, transform.right) * transform.forward;
-            GizmoUtils.DrawVector(3, 0.2f, transform.position, minVector, Color.red);
+            GizmoUtils.DrawVector(3, 0.2f, currentPos, minVector, Color.red);
         }
     }
 #endif
@@ -245,6 +242,10 @@ public class PlayerFlightController : PlayerMovementStateBase
 
     private void DoWingBreak()
     {
+        //Poll actions
+        var isBreakingLeft = inputObject.Player.BreakLeft.ReadValue<float>() >= 0.5f;
+        var isBreakingRight = inputObject.Player.BreakRight.ReadValue<float>() >= 0.5f;
+        
         //Handle break left
         if (isBreakingLeft)
         {
@@ -295,8 +296,8 @@ public class PlayerFlightController : PlayerMovementStateBase
         inputObject.Player.Flap.performed += Input_Flap;
         inputObject.Player.Movement.performed += Input_Movement;
         inputObject.Player.Dash.performed += Input_TryDash;
-        inputObject.Player.BreakLeft.performed += Input_BreakLeft;
-        inputObject.Player.BreakRight.performed += Input_BreakRight;
+        // inputObject.Player.BreakLeft.performed += Input_BreakLeft;
+        // inputObject.Player.BreakRight.performed += Input_BreakRight;
     }
 
     private void UnsubscribeControls()
@@ -304,8 +305,8 @@ public class PlayerFlightController : PlayerMovementStateBase
         inputObject.Player.Flap.performed -= Input_Flap;
         inputObject.Player.Movement.performed -= Input_Movement;
         inputObject.Player.Dash.performed -= Input_TryDash;
-        inputObject.Player.BreakLeft.performed -= Input_BreakLeft;
-        inputObject.Player.BreakRight.performed -= Input_BreakRight;
+        // inputObject.Player.BreakLeft.performed -= Input_BreakLeft;
+        // inputObject.Player.BreakRight.performed -= Input_BreakRight;
     }
 
     private void Input_Movement(InputAction.CallbackContext context)
@@ -313,7 +314,7 @@ public class PlayerFlightController : PlayerMovementStateBase
         movementInputVector = context.ReadValue<Vector2>();
     }
 
-    public void Input_TryDash(InputAction.CallbackContext context)
+    private void Input_TryDash(InputAction.CallbackContext context)
     {
         if (validDashTarget.CurrentValue == true)
         {
@@ -323,23 +324,12 @@ public class PlayerFlightController : PlayerMovementStateBase
         }
     }
 
-    public void Input_BreakLeft(InputAction.CallbackContext context)
+    private void Input_Flap(InputAction.CallbackContext context)
     {
-        isBreakingLeft = (context.ReadValue<float>() >= 0.5f);
-    }
-
-    public void Input_BreakRight(InputAction.CallbackContext context)
-    {
-        isBreakingRight = (context.ReadValue<float>() >= 0.5f);
-    }
-
-    public void Input_Flap(InputAction.CallbackContext context)
-    {
-        if (!isFlapping)
-        {
-            isFlapping = true;
-            _animator.SetTrigger("Flap");
-        }
+        if (isFlapping) return;
+        
+        isFlapping = true;
+        _animator.SetTrigger("Flap");
     }
 
     #endregion
@@ -365,7 +355,7 @@ public class PlayerFlightController : PlayerMovementStateBase
     /// <summary>
     /// Subscribes methods to their corresponding animation-event actions.
     /// </summary>
-    public void SubscribeAnimationEvents()
+    private void SubscribeAnimationEvents()
     {
         onFlapStart += FlapAccelerate;
         onFlapEnd += EndFlap;
@@ -374,7 +364,7 @@ public class PlayerFlightController : PlayerMovementStateBase
     /// <summary>
     /// Subscribes methods from their corresponding animation-event actions.
     /// </summary>
-    public void UnsubscribeAnimationEvents()
+    private void UnsubscribeAnimationEvents()
     {
         onFlapStart -= FlapAccelerate;
         onFlapEnd -= EndFlap;

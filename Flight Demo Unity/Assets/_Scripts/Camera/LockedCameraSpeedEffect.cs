@@ -32,8 +32,6 @@ public class LockedCameraSpeedEffect : MonoBehaviour
         CMTransposer.m_FollowOffset = targetOffset;
 
         _CMCamera.m_Lens.FieldOfView = settingVars.ZoomToFOV(zoomRef.CurrentValue);
-
-        Debug.Log(_CMCamera.m_Lens.FieldOfView);
     }
     #endregion
 }

@@ -68,9 +68,9 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
                 },
                 {
                     ""name"": ""BreakLeft"",
-                    ""type"": ""Value"",
+                    ""type"": ""Button"",
                     ""id"": ""e0cb0793-5712-4bc5-a06f-1119fc96fc62"",
-                    ""expectedControlType"": ""Integer"",
+                    ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """"
                 },
