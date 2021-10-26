@@ -52,6 +52,11 @@ public class PlayerFlightController : PlayerMovementStateBase
 
     [SerializeField] private VectorVariable currentPositionVar = null;
     [SerializeField] private VectorVariable flyDirectionVar = null;
+    
+    [Header("Prototype stuff")]
+    // EVERYTHING IN HERE IS EXPECTED TO BE GARBAGE AND SHOULD NOT BE KEPT UNDER ANY CIRCUMSTANCE
+    [SerializeField] private GameObject RIndicator;
+    [SerializeField] private GameObject LIndicator;
 
     //cached local components
     private CharacterController _controller;
@@ -72,6 +77,7 @@ public class PlayerFlightController : PlayerMovementStateBase
     private bool isFlapping;
     private Action onFlapStart;
     private Action onFlapEnd;
+    
 
 
     #region - Unity Callbacks - 
@@ -247,7 +253,10 @@ public class PlayerFlightController : PlayerMovementStateBase
 
             //rotate flight vector
             flyDirection = Quaternion.AngleAxis(-breakYawSpeedMod * Time.deltaTime, Vector3.up) * flyDirection;
+            
+            LIndicator.SetActive(true);
         }
+        else LIndicator.SetActive(false);
 
         //Handle break right
         if (breakRightInput  >= 0.5f)
@@ -257,8 +266,11 @@ public class PlayerFlightController : PlayerMovementStateBase
 
             //rotate flight vector
             flyDirection = Quaternion.AngleAxis(breakYawSpeedMod * Time.deltaTime, Vector3.up) * flyDirection;
+            
+            RIndicator.SetActive(true);
         }
-        
+        else RIndicator.SetActive(false);
+
         //set animator vars
         _animator.SetFloat("LWingBreak", breakLeftInput);
         _animator.SetFloat("RWingBreak", breakRightInput);
