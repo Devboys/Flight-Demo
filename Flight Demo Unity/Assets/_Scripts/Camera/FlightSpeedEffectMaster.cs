@@ -1,17 +1,14 @@
 ﻿using Devboys.SharedObjects.Variables;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class FlightSpeedEffectMaster : MonoBehaviour
 {
     [Header("Input refs")]
-    public FloatReference playerSpeed = null;
+    public FloatReference playerSpeed;
 
     [Header("Output refs")]
-    public FloatVariable smoothedZoom = null;
-    public FloatVariable smoothedFOV = null;
+    public FloatVariable smoothedZoom;
+    public FloatVariable smoothedFOV;
 
     [Header("Settings")]
     public SO_SpeedFXVars settingVars;
@@ -38,7 +35,7 @@ public class FlightSpeedEffectMaster : MonoBehaviour
         float effectIntensity = GetNormalizedSpeed();
         smoothedEffectIntensity = Mathf.MoveTowards(smoothedEffectIntensity, effectIntensity, settingVars.smoothSpeed * Time.deltaTime);
 
-        //update zoom vars
+        //update Zoom vars
         smoothedZoom.CurrentValue = settingVars.minZoom + (smoothedEffectIntensity * (settingVars.maxZoom - settingVars.minZoom));
 
         //update FOV vars.
@@ -50,10 +47,7 @@ public class FlightSpeedEffectMaster : MonoBehaviour
         float speed = playerSpeed.CurrentValue;
 
         if (speed < settingVars.minSpeed) return 0;
-        else if (speed > settingVars.maxSpeed) return 1;
-        else
-        {
-            return (speed - settingVars.minSpeed) / (settingVars.maxSpeed - settingVars.minSpeed);
-        }
+        if (speed > settingVars.maxSpeed) return 1;
+        return (speed - settingVars.minSpeed) / (settingVars.maxSpeed - settingVars.minSpeed);
     }
 }

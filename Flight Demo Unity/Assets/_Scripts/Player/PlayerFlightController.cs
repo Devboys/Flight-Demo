@@ -81,15 +81,8 @@ public class PlayerFlightController : PlayerMovementStateBase
         _controller = GetComponent<CharacterController>();
         _animator = GetComponent<Animator>();
 
-        
-
         currentSpeed.CurrentValue = initialFlySpeed;
-    }
-
-    private void Start()
-    {
         inputObject = SharedPlayerInput.GetSceneInstance().GetPlayerInput();
-        //flyDirection = Vector3.forward;
     }
 
 
@@ -243,11 +236,11 @@ public class PlayerFlightController : PlayerMovementStateBase
     private void DoWingBreak()
     {
         //Poll actions
-        var isBreakingLeft = inputObject.Player.BreakLeft.ReadValue<float>() >= 0.5f;
-        var isBreakingRight = inputObject.Player.BreakRight.ReadValue<float>() >= 0.5f;
+        float breakLeftInput = inputObject.Player.BreakLeft.ReadValue<float>();
+        float breakRightInput = inputObject.Player.BreakRight.ReadValue<float>();
         
         //Handle break left
-        if (isBreakingLeft)
+        if (breakLeftInput >= 0.5f)
         {
             //decelerate
             currentSpeed.CurrentValue += breakFlightDeceleration * Time.deltaTime;
@@ -257,7 +250,7 @@ public class PlayerFlightController : PlayerMovementStateBase
         }
 
         //Handle break right
-        if (isBreakingRight)
+        if (breakRightInput  >= 0.5f)
         {
             //decelerate
             currentSpeed.CurrentValue += breakFlightDeceleration * Time.deltaTime;
@@ -265,6 +258,10 @@ public class PlayerFlightController : PlayerMovementStateBase
             //rotate flight vector
             flyDirection = Quaternion.AngleAxis(breakYawSpeedMod * Time.deltaTime, Vector3.up) * flyDirection;
         }
+        
+        //set animator vars
+        _animator.SetFloat("LWingBreak", breakLeftInput);
+        _animator.SetFloat("RWingBreak", breakRightInput);
     }
 
     private void DoFlightGravityAccelerate()

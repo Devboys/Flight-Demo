@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e5acd0503f9d6c6459c6980b114f5a9f, type: 3}
   m_Name: SpeedFXSettings
   m_EditorClassIdentifier: 
-  smoothSpeed: 0.2
-  minZoom: 10
-  maxZoom: 30
+  smoothSpeed: 0.5
+  minZoom: 15
+  maxZoom: 35
   minFOV: 40
   maxFOV: 70
   minSpeed: 5

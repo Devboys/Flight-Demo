@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -11,26 +12,33 @@ public class SharedPlayerInput : MonoBehaviour
 
     public void Awake()
     {
+        if (FindObjectsOfType<SharedPlayerInput>().Length > 1) Debug.LogError("Multiple Shared Input Handlers in Scene!");
+    }
+
+    private void CreateInputObject()
+    {
         playerInput = new PlayerInputActions();
 
         playerInput.UI.Disable();
         playerInput.Player.Enable();
-
-        if (FindObjectsOfType<SharedPlayerInput>().Length > 1) Debug.LogError("Multiple Shared Input Handlers in Scene!");
     }
 
     public void OnEnable()
     {
-        playerInput.Enable();
+        GetPlayerInput().Enable();
     }
 
     public void OnDisable()
     {
-        playerInput.Disable();
+        GetPlayerInput().Disable();
     }
 
     public PlayerInputActions GetPlayerInput()
     {
+        if (playerInput == null)
+        {
+            CreateInputObject();
+        }
         return playerInput;
     }
 

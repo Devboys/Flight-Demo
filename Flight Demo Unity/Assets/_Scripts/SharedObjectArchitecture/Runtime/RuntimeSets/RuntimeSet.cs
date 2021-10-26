@@ -10,6 +10,8 @@ namespace Devboys.SharedObjects.RuntimeSets
         //[Tooltip("The runtime version of this value. This value will be reset to the default when you enter playmode/start the game")]
         [ReadOnly] public List<T> items = new List<T>();
 
+        public Action<int> onListChanged;
+
         //run when we first enter playmode/the application.
         private void OnEnable()
         {
@@ -22,13 +24,21 @@ namespace Devboys.SharedObjects.RuntimeSets
         public void AddItem(T itemToAdd)
         {
             //ensure no duplicates
-            if (!items.Contains(itemToAdd)) items.Add(itemToAdd);
+            if (!items.Contains(itemToAdd))
+            {
+                items.Add(itemToAdd);
+                onListChanged?.Invoke(items.Count);
+            }
         }
 
         public void RemoveItem(T itemToRemove)
         {
             //ensure that items exists in list before we remove them.
-            if (items.Contains(itemToRemove)) items.Remove(itemToRemove);
+            if (items.Contains(itemToRemove))
+            {
+                items.Remove(itemToRemove);
+                onListChanged?.Invoke(items.Count);
+            }
         }
 
         public void ResetSet()
@@ -40,5 +50,6 @@ namespace Devboys.SharedObjects.RuntimeSets
         {
             return typeof(T);
         }
+        
     }
 }
