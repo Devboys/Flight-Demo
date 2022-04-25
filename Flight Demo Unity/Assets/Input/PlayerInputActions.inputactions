@@ -84,6 +84,14 @@
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": ""
+                },
+                {
+                    "name": "Dive",
+                    "type": "Button",
+                    "id": "9bd85715-0001-4720-be33-ec8f5877e3b3",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
                 }
             ],
             "bindings": [
@@ -282,6 +290,17 @@
                     "processors": "",
                     "groups": "Gamepad",
                     "action": "TestButton",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "de5cfeba-ea04-47dc-9fb2-3f24b5bb4804",
+                    "path": "<XInputController>/buttonNorth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "Dive",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

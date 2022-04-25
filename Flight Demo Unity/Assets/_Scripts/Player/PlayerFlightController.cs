@@ -52,11 +52,6 @@ public class PlayerFlightController : PlayerMovementStateBase
 
     [SerializeField] private VectorVariable currentPositionVar = null;
     [SerializeField] private VectorVariable flyDirectionVar = null;
-    
-    [Header("Prototype stuff")]
-    // EVERYTHING IN HERE IS EXPECTED TO BE GARBAGE AND SHOULD NOT BE KEPT UNDER ANY CIRCUMSTANCE
-    [SerializeField] private GameObject RIndicator;
-    [SerializeField] private GameObject LIndicator;
 
     //cached local components
     private CharacterController _controller;
@@ -77,7 +72,9 @@ public class PlayerFlightController : PlayerMovementStateBase
     private bool isFlapping;
     private Action onFlapStart;
     private Action onFlapEnd;
-    
+
+    private bool isDiving;
+
 
 
     #region - Unity Callbacks - 
@@ -98,7 +95,7 @@ public class PlayerFlightController : PlayerMovementStateBase
         UpdateBaseVectors();
 
         DoFlightMove();
-
+        
         DoWingBreak();
 
         DoFlightGravityAccelerate();
@@ -253,10 +250,7 @@ public class PlayerFlightController : PlayerMovementStateBase
 
             //rotate flight vector
             flyDirection = Quaternion.AngleAxis(-breakYawSpeedMod * Time.deltaTime, Vector3.up) * flyDirection;
-            
-            LIndicator.SetActive(true);
         }
-        else LIndicator.SetActive(false);
 
         //Handle break right
         if (breakRightInput  >= 0.5f)
@@ -266,10 +260,7 @@ public class PlayerFlightController : PlayerMovementStateBase
 
             //rotate flight vector
             flyDirection = Quaternion.AngleAxis(breakYawSpeedMod * Time.deltaTime, Vector3.up) * flyDirection;
-            
-            RIndicator.SetActive(true);
         }
-        else RIndicator.SetActive(false);
 
         //set animator vars
         _animator.SetFloat("LWingBreak", breakLeftInput);
@@ -297,6 +288,7 @@ public class PlayerFlightController : PlayerMovementStateBase
         }
 
     }
+    
     #endregion
 
     #region - Input Subscribers & Methods - 
@@ -305,6 +297,8 @@ public class PlayerFlightController : PlayerMovementStateBase
         inputObject.Player.Flap.performed += Input_Flap;
         inputObject.Player.Movement.performed += Input_Movement;
         inputObject.Player.Dash.performed += Input_TryDash;
+        inputObject.Player.Dive.started += Input_Dive;
+        inputObject.Player.Dive.canceled += Input_Dive;
         // inputObject.Player.BreakLeft.performed += Input_BreakLeft;
         // inputObject.Player.BreakRight.performed += Input_BreakRight;
     }
@@ -314,6 +308,8 @@ public class PlayerFlightController : PlayerMovementStateBase
         inputObject.Player.Flap.performed -= Input_Flap;
         inputObject.Player.Movement.performed -= Input_Movement;
         inputObject.Player.Dash.performed -= Input_TryDash;
+        inputObject.Player.Dive.started -= Input_Dive;
+        inputObject.Player.Dive.canceled -= Input_Dive;
         // inputObject.Player.BreakLeft.performed -= Input_BreakLeft;
         // inputObject.Player.BreakRight.performed -= Input_BreakRight;
     }
@@ -340,6 +336,15 @@ public class PlayerFlightController : PlayerMovementStateBase
         isFlapping = true;
         _animator.SetTrigger("Flap");
     }
+    
+    private void Input_Dive(InputAction.CallbackContext context)
+    {
+        // Super weird solution
+        bool buttonDown = context.ReadValue<float>() > 0.5 ;
+        _animator.SetBool("Dive", buttonDown);
+        if(buttonDown)
+            _animator.SetTrigger("Dive_Started");
+    } 
 
     #endregion
 

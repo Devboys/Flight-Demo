@@ -97,6 +97,14 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """"
+                },
+                {
+                    ""name"": ""Dive"",
+                    ""type"": ""Button"",
+                    ""id"": ""9bd85715-0001-4720-be33-ec8f5877e3b3"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
                 }
             ],
             ""bindings"": [
@@ -295,6 +303,17 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
                     ""processors"": """",
                     ""groups"": ""Gamepad"",
                     ""action"": ""TestButton"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""de5cfeba-ea04-47dc-9fb2-3f24b5bb4804"",
+                    ""path"": ""<XInputController>/buttonNorth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""Dive"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -723,6 +742,7 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
         m_Player_BreakRight = m_Player.FindAction("BreakRight", throwIfNotFound: true);
         m_Player_Flap = m_Player.FindAction("Flap", throwIfNotFound: true);
         m_Player_TestButton = m_Player.FindAction("TestButton", throwIfNotFound: true);
+        m_Player_Dive = m_Player.FindAction("Dive", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -792,6 +812,7 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
     private readonly InputAction m_Player_BreakRight;
     private readonly InputAction m_Player_Flap;
     private readonly InputAction m_Player_TestButton;
+    private readonly InputAction m_Player_Dive;
     public struct PlayerActions
     {
         private @PlayerInputActions m_Wrapper;
@@ -806,6 +827,7 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
         public InputAction @BreakRight => m_Wrapper.m_Player_BreakRight;
         public InputAction @Flap => m_Wrapper.m_Player_Flap;
         public InputAction @TestButton => m_Wrapper.m_Player_TestButton;
+        public InputAction @Dive => m_Wrapper.m_Player_Dive;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -845,6 +867,9 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
                 @TestButton.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnTestButton;
                 @TestButton.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnTestButton;
                 @TestButton.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnTestButton;
+                @Dive.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnDive;
+                @Dive.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnDive;
+                @Dive.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnDive;
             }
             m_Wrapper.m_PlayerActionsCallbackInterface = instance;
             if (instance != null)
@@ -879,6 +904,9 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
                 @TestButton.started += instance.OnTestButton;
                 @TestButton.performed += instance.OnTestButton;
                 @TestButton.canceled += instance.OnTestButton;
+                @Dive.started += instance.OnDive;
+                @Dive.performed += instance.OnDive;
+                @Dive.canceled += instance.OnDive;
             }
         }
     }
@@ -1002,6 +1030,7 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
         void OnBreakRight(InputAction.CallbackContext context);
         void OnFlap(InputAction.CallbackContext context);
         void OnTestButton(InputAction.CallbackContext context);
+        void OnDive(InputAction.CallbackContext context);
     }
     public interface IUIActions
     {
