@@ -22,8 +22,12 @@ public class PlayerFlightController : PlayerMovementStateBase
     [SerializeField] private float tiltAcceleration = 5;
     [Tooltip("How long it takes the player to rotate vertically around themselves. In degrees/second.")]
     [SerializeField] private float basePitchSpeed = 40;
+    [Tooltip("Time required to go from idle to full pitch speed when turning at full tilt. In seconds.")]
+    [SerializeField] private float pitchSpeedDamping = 0.25f;
     [Tooltip("How long it takes the player to rotate horizontally around themselves. In degrees/second.")]
     [SerializeField] private float baseYawSpeed = 40;
+    [Tooltip("Time required to go from idle to full yaw speed when turning at full tilt. In seconds.")]
+    [SerializeField] private float yawSpeedDamping = 0.25f;
     [Tooltip("The maximum rotation of the player from neutral position (0 rotation). In degrees.")]
     [SerializeField] private float maxPitchAngle = 50;
     [Tooltip("The minimum rotation of the player from neutral position (0 rotation). In degrees.")]
@@ -49,9 +53,14 @@ public class PlayerFlightController : PlayerMovementStateBase
     [Header("Output vars")]
     [Tooltip("The shared object to hold the players current speed (used by other systems).")]
     [SerializeField] private FloatVariable currentSpeed = null;
-
     [SerializeField] private VectorVariable currentPositionVar = null;
     [SerializeField] private VectorVariable flyDirectionVar = null;
+
+#if UNITY_EDITOR
+    [Header("Debug")]
+    [SerializeField] private bool lockPosition;
+    [SerializeField] private bool drawDebug;
+#endif
 
     //cached local components
     private CharacterController _controller;
@@ -63,6 +72,10 @@ public class PlayerFlightController : PlayerMovementStateBase
 
     //fly vectors
     private Vector3 flyDirection;
+    private float currentYawSpeed;
+    private float currentYawSpeedVelocity;
+    private float currentPitchSpeed;
+    private float currentPitchSpeedVelocity;
 
     //base vectors tied to current flyDirection projected onto the xz-plane. used to make rotations unaffected by flydirection
     private Vector3 baseForward; 
@@ -77,12 +90,14 @@ public class PlayerFlightController : PlayerMovementStateBase
 
 
 
-    #region - Unity Callbacks - 
+#region - Unity Callbacks - 
     private void Awake()
     {
         //cache components
         _controller = GetComponent<CharacterController>();
         _animator = GetComponent<Animator>();
+
+        currentYawSpeed = 0;
 
         currentSpeed.CurrentValue = initialFlySpeed;
         inputObject = SharedPlayerInput.GetSceneInstance().GetPlayerInput();
@@ -102,6 +117,12 @@ public class PlayerFlightController : PlayerMovementStateBase
 
         ClampFlightSpeed();
 
+#if UNITY_EDITOR
+        if (lockPosition)
+        {
+            currentSpeed.CurrentValue = 0;
+        }
+#endif
         //rotate transform to face defined fly direction.
         this.transform.LookAt(transform.position + flyDirection, Vector3.up);
         _controller.Move(flyDirection * currentSpeed.CurrentValue * Time.deltaTime);
@@ -151,6 +172,7 @@ public class PlayerFlightController : PlayerMovementStateBase
 #if UNITY_EDITOR
     public override void ActiveDrawGizmos()
     {
+        if (!drawDebug) return;
         Vector3 currentPos = transform.position;
         
         if (Application.isPlaying)
@@ -168,7 +190,7 @@ public class PlayerFlightController : PlayerMovementStateBase
             Vector3 minVector = Quaternion.AngleAxis(minPitchAngle, baseSideways) * baseForward;
             GizmoUtils.DrawVector(3, 0.2f, currentPos, minVector, Color.red);
         }
-        else if (Application.isEditor)
+        else if (Application.isEditor )
         {
             //draw base vectors (these are just transform.forward and transform.right in edit mode)
             GizmoUtils.DrawVector(3, 0.2f, currentPos, transform.forward, Color.yellow);
@@ -184,9 +206,9 @@ public class PlayerFlightController : PlayerMovementStateBase
     }
 #endif
 
-    #endregion
+#endregion
 
-    #region - Movement Submethods (used in update loop) - 
+#region - Movement Submethods (used in update loop) - 
     private void UpdateBaseVectors()
     {
         baseForward = Vector3.ProjectOnPlane(flyDirection, Vector3.up).normalized;
@@ -196,44 +218,36 @@ public class PlayerFlightController : PlayerMovementStateBase
     private void DoFlightMove()
     {
         //rotate direction vector vertically (around local x-axis) on up/down input.
+        float desiredPitchSpeed = 0.0f;
         if (Mathf.Abs(movementInputVector.y) > 0.01f)
         {
-            float rot = movementInputVector.y * basePitchSpeed * Time.deltaTime;
-            Vector3 desiredDirection = Quaternion.AngleAxis(rot, baseSideways) * flyDirection;
-
-            float angle = Vector3.SignedAngle(baseForward, desiredDirection, baseSideways);
-
-            //ensure we stay within defined angle extrema
-            if (Mathf.Sign(movementInputVector.y) == 1)
-            {
-                if (angle < maxPitchAngle)
-                {
-                    flyDirection = desiredDirection;
-                }
-                else
-                {
-                    flyDirection = GetRotatedBaseVector(false);
-                }
-            }
-            else if (Mathf.Sign(movementInputVector.y) == -1)
-            {
-                if (angle > minPitchAngle)
-                {
-                    flyDirection = desiredDirection;
-                }
-                else
-                {
-                    flyDirection = GetRotatedBaseVector(true);
-                }
-            }
+            desiredPitchSpeed = movementInputVector.y * basePitchSpeed;
         }
+        //pitch-turn velocity damping
+        currentPitchSpeed = Mathf.SmoothDamp(currentPitchSpeed, desiredPitchSpeed, ref currentPitchSpeedVelocity, pitchSpeedDamping);
+        Vector3 desiredDirection = Quaternion.AngleAxis(currentPitchSpeed * Time.deltaTime, baseSideways) * flyDirection;
+
+        //clamp desired direction to pitch extrema.
+        float angle = Vector3.SignedAngle(baseForward, desiredDirection, baseSideways);
+        if (angle > maxPitchAngle)
+        {
+            desiredDirection = Quaternion.AngleAxis(maxPitchAngle, baseSideways) * baseForward;
+        }
+        else if(angle < minPitchAngle)
+        {
+            desiredDirection = Quaternion.AngleAxis(minPitchAngle, baseSideways) * baseForward;
+        }
+        flyDirection = desiredDirection;
 
         //rotate direction vector sideways (around y-axis) on sideways input.
+        float desiredYawSpeed = 0.0f;
         if (Mathf.Abs(movementInputVector.x) > 0.01f)
         {
-            flyDirection = Quaternion.AngleAxis(baseYawSpeed * movementInputVector.x * Time.deltaTime, Vector3.up) * flyDirection;
+            desiredYawSpeed = movementInputVector.x * baseYawSpeed;
         }
-
+        //yaw-turn velocity damping
+        currentYawSpeed = Mathf.SmoothDamp(currentYawSpeed, desiredYawSpeed, ref currentYawSpeedVelocity, yawSpeedDamping);
+        flyDirection = Quaternion.AngleAxis(currentYawSpeed * Time.deltaTime, Vector3.up) * flyDirection;
     }
 
     private void DoWingBreak()
@@ -289,9 +303,9 @@ public class PlayerFlightController : PlayerMovementStateBase
 
     }
     
-    #endregion
+#endregion
 
-    #region - Input Subscribers & Methods - 
+#region - Input Subscribers & Methods - 
     private void SubscribeControls()
     {
         inputObject.Player.Flap.performed += Input_Flap;
@@ -346,9 +360,9 @@ public class PlayerFlightController : PlayerMovementStateBase
             _animator.SetTrigger("Dive_Started");
     } 
 
-    #endregion
+#endregion
 
-    #region - Animation Event Handlers -
+#region - Animation Event Handlers -
 
     /// <summary>
     /// Used by animation events only
@@ -394,14 +408,5 @@ public class PlayerFlightController : PlayerMovementStateBase
         isFlapping = false;
     }
 
-    #endregion
-
-    /// <summary>
-    /// Returns a vector rotated exactly to the degrees indicated by either minVerticalRotation or maxVerticalRotation. 
-    /// </summary>
-    private Vector3 GetRotatedBaseVector(bool returnMin)
-    {
-        Vector3 result = Quaternion.AngleAxis((returnMin ? minPitchAngle : maxPitchAngle), baseSideways) * baseForward;
-        return result;
-    }
+#endregion
 }
