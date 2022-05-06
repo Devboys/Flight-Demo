@@ -29,7 +29,7 @@ public class PlayerDashController : PlayerMovementStateBase
         _charController = GetComponent<CharacterController>();
     }
 
-    public override void HandleStateActivate()
+    public override void HandleStateActivate(Vector3 prevStateDirection, float prevStateSpeed)
     {
         //prep dash vars
         dashTargetPos = currentDashTarget.CurrentValue.position;
@@ -42,12 +42,8 @@ public class PlayerDashController : PlayerMovementStateBase
         dashStartEvent.Raise();
     }
 
-    public override void ActiveUpdate()
+    public override void StateUpdate()
     {
-        //Vector3 currentDir = transform.forward;
-        //Vector3 targetDir = dashDirection;
-        //Vector3 lerpedDir = Vector3.MoveTowards(currentDir, targetDir, turnSpeed * Time.deltaTime);
-        //transform.LookAt(transform.position + lerpedDir.normalized, Vector3.up);
         transform.LookAt(this.transform.position + dashDirection.normalized, Vector3.up);
 
         _charController.Move(dashDirection * currentSpeed.CurrentValue * Time.deltaTime);
@@ -56,7 +52,7 @@ public class PlayerDashController : PlayerMovementStateBase
 
         if (dashTimer <= 0)
         {
-            parentHandler.SwitchToState<PlayerFlightController>();
+            moveStateHandler.SwitchToState<PlayerFlightController>(dashDirection, currentSpeed.CurrentValue);
         }
     }
 

@@ -28,4 +28,9 @@ public static class VectorUtils
         }
         return Mathf.Atan2(Vector3.Dot(to, right), Vector3.Dot(to, from)) * Mathf.Rad2Deg;
     }
+
+    public static void DebugDrawVectorAtPosition(Vector3 position, Vector3 dir, Color col, float length = 5)
+    {
+        Debug.DrawLine(position, position + dir * length, col);
+    }
 }

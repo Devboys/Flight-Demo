@@ -105,7 +105,7 @@ public class PlayerFlightController : PlayerMovementStateBase
 
 
     //All movement is handled in ActiveUpdate. Flight control works by rotating the current forward vector (base
-    public override void ActiveUpdate()
+    public override void StateUpdate()
     {
         UpdateBaseVectors();
 
@@ -133,10 +133,13 @@ public class PlayerFlightController : PlayerMovementStateBase
 
     }
 
-    public override void HandleStateActivate()
+    public override void HandleStateActivate(Vector3 prevStateDirection, float prevStateSpeed)
     {
         //flydirection is set on state activate to things like maintaing fly-direction when we end a dash.
         flyDirection = transform.forward;
+        movementInputVector = inputObject.Player.Movement.ReadValue<Vector2>();
+        currentPitchSpeed = 0;
+        currentYawSpeed = 0;
 
         SubscribeControls();
         SubscribeAnimationEvents();
@@ -170,7 +173,7 @@ public class PlayerFlightController : PlayerMovementStateBase
     }
 
 #if UNITY_EDITOR
-    public override void ActiveDrawGizmos()
+    public override void StateDrawGizmos()
     {
         if (!drawDebug) return;
         Vector3 currentPos = transform.position;
@@ -209,6 +212,9 @@ public class PlayerFlightController : PlayerMovementStateBase
 #endregion
 
 #region - Movement Submethods (used in update loop) - 
+    /// <summary>
+    /// Updates base vectors (baseForward & baseSideways) to follow current flyDirection. Base vectors are used in other movement methods.
+    /// </summary>
     private void UpdateBaseVectors()
     {
         baseForward = Vector3.ProjectOnPlane(flyDirection, Vector3.up).normalized;
@@ -223,6 +229,7 @@ public class PlayerFlightController : PlayerMovementStateBase
         {
             desiredPitchSpeed = movementInputVector.y * basePitchSpeed;
         }
+
         //pitch-turn velocity damping
         currentPitchSpeed = Mathf.SmoothDamp(currentPitchSpeed, desiredPitchSpeed, ref currentPitchSpeedVelocity, pitchSpeedDamping);
         Vector3 desiredDirection = Quaternion.AngleAxis(currentPitchSpeed * Time.deltaTime, baseSideways) * flyDirection;
@@ -308,42 +315,40 @@ public class PlayerFlightController : PlayerMovementStateBase
 #region - Input Subscribers & Methods - 
     private void SubscribeControls()
     {
-        inputObject.Player.Flap.performed += Input_Flap;
-        inputObject.Player.Movement.performed += Input_Movement;
-        inputObject.Player.Dash.performed += Input_TryDash;
-        inputObject.Player.Dive.started += Input_Dive;
-        inputObject.Player.Dive.canceled += Input_Dive;
+        inputObject.Player.Flap.performed += Input_OnFlap;
+        inputObject.Player.Movement.performed += Input_OnMovement;
+        inputObject.Player.Dash.performed += Input_OnDash;
+        inputObject.Player.Dive.started += Input_OnDive;
+        inputObject.Player.Dive.canceled += Input_OnDive;
         // inputObject.Player.BreakLeft.performed += Input_BreakLeft;
         // inputObject.Player.BreakRight.performed += Input_BreakRight;
     }
 
     private void UnsubscribeControls()
     {
-        inputObject.Player.Flap.performed -= Input_Flap;
-        inputObject.Player.Movement.performed -= Input_Movement;
-        inputObject.Player.Dash.performed -= Input_TryDash;
-        inputObject.Player.Dive.started -= Input_Dive;
-        inputObject.Player.Dive.canceled -= Input_Dive;
+        inputObject.Player.Flap.performed -= Input_OnFlap;
+        inputObject.Player.Movement.performed -= Input_OnMovement;
+        inputObject.Player.Dash.performed -= Input_OnDash;
+        inputObject.Player.Dive.started -= Input_OnDive;
+        inputObject.Player.Dive.canceled -= Input_OnDive;
         // inputObject.Player.BreakLeft.performed -= Input_BreakLeft;
         // inputObject.Player.BreakRight.performed -= Input_BreakRight;
     }
 
-    private void Input_Movement(InputAction.CallbackContext context)
+    private void Input_OnMovement(InputAction.CallbackContext context)
     {
         movementInputVector = context.ReadValue<Vector2>();
     }
 
-    private void Input_TryDash(InputAction.CallbackContext context)
+    private void Input_OnDash(InputAction.CallbackContext context)
     {
         if (validDashTarget.CurrentValue == true)
         {
-            //Debug.Break();
-            //StartCoroutine(CoroutineUtils.InvokeNextFrame(() => { parentHandler.SwitchToState<PlayerDashController>(); }));
-            parentHandler.SwitchToState<PlayerDashController>();
+            moveStateHandler.SwitchToState<PlayerDashController>(flyDirection, currentSpeed.CurrentValue);
         }
     }
 
-    private void Input_Flap(InputAction.CallbackContext context)
+    private void Input_OnFlap(InputAction.CallbackContext context)
     {
         if (isFlapping) return;
         
@@ -351,13 +356,15 @@ public class PlayerFlightController : PlayerMovementStateBase
         _animator.SetTrigger("Flap");
     }
     
-    private void Input_Dive(InputAction.CallbackContext context)
+    private void Input_OnDive(InputAction.CallbackContext context)
     {
         // Super weird solution
         bool buttonDown = context.ReadValue<float>() > 0.5 ;
         _animator.SetBool("Dive", buttonDown);
         if(buttonDown)
             _animator.SetTrigger("Dive_Started");
+
+        moveStateHandler.SwitchToState<PlayerDiveController>(flyDirection, currentSpeed.CurrentValue);
     } 
 
 #endregion

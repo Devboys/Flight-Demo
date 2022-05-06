@@ -15391,6 +15391,11 @@ PrefabInstance:
       propertyPath: YawSpeedDamping
       value: 0.25
       objectReference: {fileID: 0}
+    - target: {fileID: 8434822027480866242, guid: 6ff01e7147904374c91f6c6bbf0f7d69,
+        type: 3}
+      propertyPath: LockPosition
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6ff01e7147904374c91f6c6bbf0f7d69, type: 3}
 --- !u!1001 &1207826307
@@ -20155,7 +20160,7 @@ PrefabInstance:
     - target: {fileID: 5200623197310812905, guid: cd3e9a0abc6b29946b7d9ead11482986,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -2.7776983
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5200623197310812905, guid: cd3e9a0abc6b29946b7d9ead11482986,
         type: 3}
@@ -20165,27 +20170,27 @@ PrefabInstance:
     - target: {fileID: 5200623197310812905, guid: cd3e9a0abc6b29946b7d9ead11482986,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 9.160631
+      value: -8.4
       objectReference: {fileID: 0}
     - target: {fileID: 5200623197310812905, guid: cd3e9a0abc6b29946b7d9ead11482986,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0.9998112
       objectReference: {fileID: 0}
     - target: {fileID: 5200623197310812905, guid: cd3e9a0abc6b29946b7d9ead11482986,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: 0.019433415
       objectReference: {fileID: 0}
     - target: {fileID: 5200623197310812905, guid: cd3e9a0abc6b29946b7d9ead11482986,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: 0.0000000172703
       objectReference: {fileID: 0}
     - target: {fileID: 5200623197310812905, guid: cd3e9a0abc6b29946b7d9ead11482986,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -3.3568434e-10
       objectReference: {fileID: 0}
     - target: {fileID: 5200623197310812905, guid: cd3e9a0abc6b29946b7d9ead11482986,
         type: 3}
@@ -20205,7 +20210,7 @@ PrefabInstance:
     - target: {fileID: 5200623197310812908, guid: cd3e9a0abc6b29946b7d9ead11482986,
         type: 3}
       propertyPath: m_Name
-      value: Main Camera (1)
+      value: Main Camera
       objectReference: {fileID: 0}
     - target: {fileID: 5200623197310812908, guid: cd3e9a0abc6b29946b7d9ead11482986,
         type: 3}
@@ -23158,17 +23163,17 @@ PrefabInstance:
     - target: {fileID: 3043418311555572793, guid: 44060f38c3b72bd4886028a1b229eefd,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.019433435
+      value: 0.019433415
       objectReference: {fileID: 0}
     - target: {fileID: 3043418311555572793, guid: 44060f38c3b72bd4886028a1b229eefd,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0.000000017169596
+      value: 0.0000000172703
       objectReference: {fileID: 0}
     - target: {fileID: 3043418311555572793, guid: 44060f38c3b72bd4886028a1b229eefd,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: 3.337272e-10
+      value: -3.3568434e-10
       objectReference: {fileID: 0}
     - target: {fileID: 3043418311622836218, guid: 44060f38c3b72bd4886028a1b229eefd,
         type: 3}
@@ -23270,14 +23275,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f66f54565cc9cc4492d6f3d3c96a299, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  offset: {x: 0, y: 0.35, z: 0}
   maxHoriAngleDiff: 30
-  maxVertAngleDiff: 20
   maxHoriSpeed: 50
   minHoriSpeed: 5
+  maxVertAngleDiff: 20
   maxVertSpeed: 50
   minVertSpeed: 5
-  maxYAngle: 40
-  minYAngle: 40
+  maxVertAngle: 25
+  minVertAngle: -25
   trackingRadius: 10
 --- !u!114 &1805630220
 MonoBehaviour:

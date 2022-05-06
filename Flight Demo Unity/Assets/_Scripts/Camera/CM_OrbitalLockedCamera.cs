@@ -12,28 +12,40 @@ using Cinemachine;
 [RequireComponent(typeof(CinemachineVirtualCamera))]
 public class CM_OrbitalLockedCamera : MonoBehaviour
 {
-    //
+    [Header("Target Settings")]
+    [SerializeField] private Vector3 offset;
+
+    [Header("Horizontal Orbit")]
     [SerializeField] private float maxHoriAngleDiff = 45;
-    [SerializeField] private float maxVertAngleDiff = 30;
     [SerializeField] private float maxHoriSpeed = 50; //in deg/s
-    [SerializeField] private float minHoriSpeed = 10;
+    [SerializeField] private float minHoriSpeed = 10; //in deg/s
+
+    [Header("Vertical Orbit")]
+    [SerializeField] private float maxVertAngleDiff = 30;
     [SerializeField] private float maxVertSpeed = 50; //in deg/s
-    [SerializeField] private float minVertSpeed = 5;
-    [SerializeField] private float maxYAngle = 40; //in deg
-    [SerializeField] private float minYAngle = 40; //in deg
+    [SerializeField] private float minVertSpeed = 5; //in deg/s
+    [SerializeField] private float maxVertAngle = 30; //in deg
+    [SerializeField] private float minVertAngle = -30; //in deg
 
     [Header("Read Only")]
     [ReadOnly][SerializeField] private float trackingRadius = 5;
     //cached components
     private CinemachineVirtualCamera _CMVirtual;
 
+    //We move the camera through an intermediate GO, cameraPuppet. 
+    //cameraPuppet is used because its forward vector can be manipulated directly (unlike CM, which relies on "look at" algorithm)
     private Transform cameraPuppet;
     private Transform targetTransform;
 
+    private void OnValidate()
+    {
+        minVertAngle = Mathf.Min(minVertAngle, 0);
+        maxVertAngle = Mathf.Max(maxVertAngle, 0);
+    }
+
     private void Awake()
     {
-        GameObject go = new GameObject();
-        go.name = "CameraPuppet";
+        GameObject go = new GameObject("CameraPuppet");
         cameraPuppet = go.transform;
     }
 
@@ -70,15 +82,21 @@ public class CM_OrbitalLockedCamera : MonoBehaviour
         float vertSpeed = Mathf.Lerp(0, maxVertSpeed, Mathf.Abs(vertAngleDiff) / maxVertAngleDiff) + minVertSpeed; //rotation damping
         float vertDelta = vertSpeed * Mathf.Sign(vertAngleDiff) * Time.deltaTime;
         vertDelta = (Mathf.Abs(vertDelta) > Mathf.Abs(vertAngleDiff)) ? vertAngleDiff : vertDelta; //prevent overshoot
+
+        //enforce vertical angle extrema
+        float currVertAngle = Vector3.SignedAngle(Vector3.ProjectOnPlane(currentDir, Vector3.up).normalized, currentDir, vertAxis);
+        vertDelta = Mathf.Min(vertDelta, maxVertAngle - currVertAngle);
+        vertDelta = Mathf.Max(vertDelta, minVertAngle - currVertAngle);
+
         dampedRot *= Quaternion.AngleAxis(vertDelta, vertAxis); //add vertical to composed rotation
         
-        //apply rotation and move puppet
+        //Apply rotation and move puppet
         currentDir = dampedRot * currentDir;
         Vector3 targetPos = targetTransform.position - currentDir * trackingRadius;
         cameraPuppet.SetPositionAndRotation(targetPos, Quaternion.identity);
         cameraPuppet.LookAt(targetTransform.position, Vector3.up);
 
-        //finally, move camera to puppet
+        //Finally, move camera to puppet
         transform.SetPositionAndRotation(cameraPuppet.position, Quaternion.identity);
     }
 

@@ -18,27 +18,30 @@ public class PlayerMovementStateHandler : MonoBehaviour
 
         foreach (PlayerMovementStateBase state in movementStates)
         {
-            state.parentHandler = this;
+            state.moveStateHandler = this;
         }
     }
 
     public void Start()
     {
-        SwitchToState<PlayerFlightController>();
+        SwitchToState<PlayerFlightController>(new Vector3(0,0,0 ), 0); //init state
     }
 
     /// <summary>
-    /// switches to the given movement state and returns it.
+    /// switches to the given movement state and returns its instance.
     /// </summary>
-    public T SwitchToState<T>() where T : PlayerMovementStateBase
+    public T SwitchToState<T>(Vector3 currentDirection, float currentVelocity) where T : PlayerMovementStateBase
     {
+
+        if (activeState != null && activeState.GetType().Equals(typeof(T))) return activeState as T;
+
         foreach(PlayerMovementStateBase state in movementStates)
         {
             if(state is T && !state.active)
             {
                 state.active = true;
                 activeState = state;
-                state.HandleStateActivate();
+                state.HandleStateActivate(currentDirection, currentVelocity);
             }
             else if (state.active)
             {
@@ -52,12 +55,12 @@ public class PlayerMovementStateHandler : MonoBehaviour
 
     public void Update()
     {
-        activeState.ActiveUpdate();
+        activeState.StateUpdate();
     }
 
     public void FixedUpdate()
     {
-        activeState.ActiveFixedUpdate();
+        activeState.StateFixedUpdate();
     }
 
     public void OnDrawGizmos()
@@ -65,7 +68,7 @@ public class PlayerMovementStateHandler : MonoBehaviour
         if (drawGizmos)
         {
             if(activeState != null)
-                activeState.ActiveDrawGizmos();
+                activeState.StateDrawGizmos();
         }
     }
 }

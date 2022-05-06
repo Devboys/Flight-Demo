@@ -91,6 +91,7 @@ GameObject:
   - component: {fileID: 7396505083664739865}
   - component: {fileID: 7396505083664739878}
   - component: {fileID: 7396505083664739864}
+  - component: {fileID: 8434822027480866242}
   - component: {fileID: 7396505083664739879}
   - component: {fileID: 7396505083664739876}
   m_Layer: 0
@@ -160,14 +161,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   active: 0
-  parentHandler: {fileID: 0}
+  moveStateHandler: {fileID: 0}
   initialFlySpeed: 10
   minFlySpeed: 2
   maxFlySpeed: 50
   speedCorrectionDelta: 10
   tiltAcceleration: 3
   basePitchSpeed: 60
+  pitchSpeedDamping: 0.25
   baseYawSpeed: 60
+  yawSpeedDamping: 0.25
   maxPitchAngle: 70
   minPitchAngle: -70
   flapSpeedMod: 8
@@ -180,6 +183,8 @@ MonoBehaviour:
   currentSpeed: {fileID: 11400000, guid: da741c31886eadf4b82966c257e48b0e, type: 2}
   currentPositionVar: {fileID: 11400000, guid: 3957ac9adac87fe4ba083b253bad40d0, type: 2}
   flyDirectionVar: {fileID: 11400000, guid: 79f5ee748fc66694e9d9b6ce06d96829, type: 2}
+  lockPosition: 0
+  drawDebug: 0
 --- !u!114 &7396505083664739864
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -193,7 +198,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   active: 0
-  parentHandler: {fileID: 0}
+  moveStateHandler: {fileID: 0}
   currentDashTarget:
     UseLocalVariable: 0
     LocalVariable: {fileID: 0}
@@ -203,6 +208,28 @@ MonoBehaviour:
   dashStartEvent: {fileID: 11400000, guid: 9bb7a9450435e2a43b276602332cfb1a, type: 2}
   dashEndEvent: {fileID: 11400000, guid: ba49ec1e864e1ce459fed4a5e48a3d34, type: 2}
   currentSpeed: {fileID: 11400000, guid: da741c31886eadf4b82966c257e48b0e, type: 2}
+--- !u!114 &8434822027480866242
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7396505083664739874}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8afeb6128e087b4c8b6b113c0ad0403, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  active: 0
+  moveStateHandler: {fileID: 0}
+  airResistance: 1
+  gravity: -10
+  maxDownVelocity: 0
+  MaxNudgeFactor: 0.1
+  currentSpeed: {fileID: 11400000, guid: da741c31886eadf4b82966c257e48b0e, type: 2}
+  currentPositionVar: {fileID: 11400000, guid: 3957ac9adac87fe4ba083b253bad40d0, type: 2}
+  flyDirectionVar: {fileID: 11400000, guid: 79f5ee748fc66694e9d9b6ce06d96829, type: 2}
+  LockPosition: 0
 --- !u!114 &7396505083664739879
 MonoBehaviour:
   m_ObjectHideFlags: 0
