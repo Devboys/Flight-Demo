@@ -46,13 +46,13 @@ public class PlayerDashController : PlayerMovementStateBase
     {
         transform.LookAt(this.transform.position + dashDirection.normalized, Vector3.up);
 
-        _charController.Move(dashDirection * currentSpeed.CurrentValue * Time.deltaTime);
+        _charController.Move(dashDirection * dashSpeed * Time.deltaTime);
 
         dashTimer -= Time.deltaTime;
 
         if (dashTimer <= 0)
         {
-            moveStateHandler.SwitchToState<PlayerFlightController>(dashDirection, currentSpeed.CurrentValue);
+            moveStateHandler.SwitchToState<PlayerFlightController>(dashDirection, dashSpeed);
         }
     }
 

@@ -48,6 +48,14 @@ MonoBehaviour:
     UseLocalVariable: 0
     LocalVariable: {x: 0, y: 0, z: 0}
     SharedVariable: {fileID: 11400000, guid: 3957ac9adac87fe4ba083b253bad40d0, type: 2}
-  currentDashTargetVar: {fileID: 11400000, guid: 0a16f57e177675d4faf69bfe2a780771,
+  playerDirRef:
+    UseLocalVariable: 0
+    LocalVariable: {x: 0, y: 0, z: 0}
+    SharedVariable: {fileID: 0}
+  currentDashTargetVar: {fileID: 11400000, guid: e8f8015e4e286b54fa6e2d2d32936c21,
     type: 2}
+  dashTargetValid: {fileID: 11400000, guid: e3a536a6f96ad1e42a56baa89dfee258, type: 2}
   maxWorldDistance: 5
+  minWorldDistance: 10
+  maxViewportDistance: 2
+  dotLimit: 0.88

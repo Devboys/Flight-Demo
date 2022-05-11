@@ -9,6 +9,7 @@ public class DashTargetHandler : MonoBehaviour
     [Header("Input")]
     [SerializeField] private DashTargetSet dashTargetSet = null;
     [SerializeField] private VectorReference playerPositionVar = null;
+    [SerializeField] private VectorReference playerDirRef = null;
 
     [Header("Output")]
     [SerializeField] private TransformVariable currentDashTargetVar = null;
@@ -20,14 +21,23 @@ public class DashTargetHandler : MonoBehaviour
     [SerializeField] private float minWorldDistance = 1f;
     [Tooltip("The maxmimum distance in viewport space a dash target can have from the center of the screen to be considered a target")]
     [SerializeField] private float maxViewportDistance = 2f;
+    [SerializeField] private LayerMask dashObstructMask;
+    
+    [SerializeField] private float dotLimit;
 
     private List<DashTarget> dashTargets => dashTargetSet.items;
     private Camera mainCam;
+
+    private float maxDistSqr;
+    private float minDistSqr;
 
     #region - Unity Callbacks -
     public void Awake()
     {
         mainCam = Camera.main;
+
+        maxDistSqr = Mathf.Pow(maxWorldDistance, 2);
+        minDistSqr = Mathf.Pow(minWorldDistance, 2);
     }
 
     public void Update()
@@ -44,6 +54,11 @@ public class DashTargetHandler : MonoBehaviour
         }
     }
 
+    private void OnValidate()
+    {
+        dotLimit = Mathf.Clamp(dotLimit, -1, 1);
+    }
+
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.blue;
@@ -58,9 +73,12 @@ public class DashTargetHandler : MonoBehaviour
         float shortestDistance = 9999;
         DashTarget closestTarget = null;
 
+        //Brute-force search closest distance. TODO: Should be optimized.
         foreach (DashTarget consideredTarget in dashTargets)
         {
-            if (IsInCenterView(consideredTarget.transform.position) && IsInFrontOfPlayer(consideredTarget.transform.position))
+            if (!consideredTarget.gameObject.activeSelf) continue;
+            Vector3 targetPos = consideredTarget.transform.position;
+            if (IsTargetValid(targetPos))
             {
                 float distance = Vector3.Distance(playerPos, consideredTarget.transform.position);
                 if (distance < maxWorldDistance && distance > minWorldDistance && distance < shortestDistance)
@@ -73,28 +91,38 @@ public class DashTargetHandler : MonoBehaviour
         return closestTarget;
     }
 
-    private bool IsInCenterView(Vector3 pos)
+    private bool IsTargetValid(Vector3 targetPos)
     {
-        Vector3 viewportPos = mainCam.WorldToViewportPoint(pos);
-
-        //check if within camera bounds
-        if (viewportPos.x > 0f && viewportPos.x < 1f && viewportPos.y > 0f && viewportPos.y < 1f && viewportPos.z > 0f)
+        bool result = true;
+        Vector3 targetDirVec = targetPos - playerPositionVar.CurrentValue;
+        
+        //is target within distance limits?
+        float distToTarget = targetDirVec.sqrMagnitude;
+        if ( distToTarget > maxDistSqr || distToTarget < minDistSqr)
         {
-            //check if within center radius
-            if (Vector2.Distance(viewportPos, new Vector2(0.5f, 0.5f)) < maxViewportDistance)
-                return true;
+            result = false;
         }
 
-        return false;
-    }
+        //is target in front of player?
+        float dot = Vector3.Dot(targetDirVec.normalized, playerDirRef.CurrentValue.normalized);
+        if(dot < dotLimit)
+        {
+            result = false;
+        }
 
-    private bool IsInFrontOfPlayer(Vector3 pos)
-    {
-        float camDistanceFromPlayer = Vector3.Distance(mainCam.transform.position, playerPositionVar.CurrentValue);
-        float targetDistance = Vector3.Distance(mainCam.transform.position, pos);
+        //is target on screen?
+        Vector2 viewportPos = mainCam.WorldToViewportPoint(targetPos);
+        if(viewportPos.x < 0f || viewportPos.x > 1 || viewportPos.y < 0f || viewportPos.y > 1)
+        {
+            result = false;
+        }
 
-        if (camDistanceFromPlayer < targetDistance) return true;
-        else return false;
+        //is path to object unobstructed?
+        if (Physics.Linecast(playerPositionVar.CurrentValue, targetPos, dashObstructMask))
+        {
+            result = false;
+        }
 
+        return result;
     }
 }

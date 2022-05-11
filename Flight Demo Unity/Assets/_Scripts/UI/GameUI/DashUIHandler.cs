@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using Devboys.SharedObjects.Variables;
 
 public class DashUIHandler : MonoBehaviour
@@ -22,18 +20,16 @@ public class DashUIHandler : MonoBehaviour
 
     private void LateUpdate()
     {
-        if(currentDashTargetValid.CurrentValue && !dashUIObject.gameObject.activeSelf)
+        //Toggle UI marker active
+        if (currentDashTargetValid.CurrentValue != dashUIObject.gameObject.activeSelf)
         {
-            dashUIObject.gameObject.SetActive(true);
-        }
-        else if(!currentDashTargetValid.CurrentValue && dashUIObject.gameObject.activeSelf)
-        {
-            dashUIObject.gameObject.SetActive(false);
+            dashUIObject.gameObject.SetActive(currentDashTargetValid.CurrentValue);
         }
 
+        //Update UI marker screen position (hover over current dash target)
         if (currentDashTargetValid.CurrentValue)
         {
-            Vector3 dashTargetPos = currentDashTarget.CurrentValue.position;
+            Vector3 dashTargetPos = currentDashTarget.GetPosition();
             dashUIObject.position = mainCam.WorldToScreenPoint(dashTargetPos);
         }
     }

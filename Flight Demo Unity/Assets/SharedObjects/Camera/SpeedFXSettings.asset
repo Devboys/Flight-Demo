@@ -18,4 +18,4 @@ MonoBehaviour:
   minFOV: 40
   maxFOV: 70
   minSpeed: 5
-  maxSpeed: 20
+  maxSpeed: 50
