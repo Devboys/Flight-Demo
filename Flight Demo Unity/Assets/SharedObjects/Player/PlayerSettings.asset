@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e871f0d153f703409cd25a1a9ee9d72, type: 3}
+  m_Name: PlayerSettings
+  m_EditorClassIdentifier: 
+  initialFlySpeed: 10
+  minFlySpeed: 2
+  maxFlySpeed: 50
+  speedCorrectionDelta: 10
+  tiltAcceleration: 3
+  basePitchSpeed: 60
+  pitchSpeedDamping: 0.25
+  baseYawSpeed: 60
+  yawSpeedDamping: 0.25
+  maxPitchAngle: 70
+  minPitchAngle: -70
+  flapSpeedMod: 8
+  breakFlightDeceleration: -8
+  breakYawSpeedMod: 40

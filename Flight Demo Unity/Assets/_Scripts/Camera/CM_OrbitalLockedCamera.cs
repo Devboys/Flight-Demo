@@ -27,6 +27,8 @@ public class CM_OrbitalLockedCamera : MonoBehaviour
     [SerializeField] private float maxVertAngle = 30; //in deg
     [SerializeField] private float minVertAngle = -30; //in deg
 
+    [SerializeField] private PlayerSettingsObject PlayerSettings;
+
     [Header("Read Only")]
     [ReadOnly][SerializeField] private float trackingRadius = 5;
     //cached components
@@ -77,16 +79,17 @@ public class CM_OrbitalLockedCamera : MonoBehaviour
         horiDelta = (Mathf.Abs(horiDelta) > Mathf.Abs(horiAngleDiff)) ? horiAngleDiff : horiDelta; //prevent overshoot
         dampedRot *= Quaternion.AngleAxis(horiDelta, Vector3.up); //add horizontal to composed rotation
 
-        //Rotate to match vertical component based on angle diff
-        float vertAngleDiff = VectorUtils.SignedAngleAboutAxis(currentDir, targetDir, vertAxis); //angle difference about vert axis
+        //Vertical Rotation
+        //Vert orbit is normalized vert angle
+        Vector3 targetDirProjected = Vector3.ProjectOnPlane(targetDir, Vector3.up).normalized;
+        float playerCurrentAngleNormalized = (VectorUtils.SignedAngleAboutAxis(targetDirProjected, targetDir, vertAxis) - PlayerSettings.minPitchAngle) / (PlayerSettings.maxPitchAngle - PlayerSettings.minPitchAngle);
+        float targetAngle = minVertAngle + playerCurrentAngleNormalized * (maxVertAngle - minVertAngle);
+        Vector3 vertTargetDir = Quaternion.AngleAxis(targetAngle, vertAxis) * targetDirProjected;
+
+        float vertAngleDiff = VectorUtils.SignedAngleAboutAxis(currentDir, vertTargetDir, vertAxis); //angle difference about vert axis
         float vertSpeed = Mathf.Lerp(0, maxVertSpeed, Mathf.Abs(vertAngleDiff) / maxVertAngleDiff) + minVertSpeed; //rotation damping
         float vertDelta = vertSpeed * Mathf.Sign(vertAngleDiff) * Time.deltaTime;
         vertDelta = (Mathf.Abs(vertDelta) > Mathf.Abs(vertAngleDiff)) ? vertAngleDiff : vertDelta; //prevent overshoot
-
-        //enforce vertical angle extrema
-        float currVertAngle = Vector3.SignedAngle(Vector3.ProjectOnPlane(currentDir, Vector3.up).normalized, currentDir, vertAxis);
-        vertDelta = Mathf.Min(vertDelta, maxVertAngle - currVertAngle);
-        vertDelta = Mathf.Max(vertDelta, minVertAngle - currVertAngle);
 
         dampedRot *= Quaternion.AngleAxis(vertDelta, vertAxis); //add vertical to composed rotation
         

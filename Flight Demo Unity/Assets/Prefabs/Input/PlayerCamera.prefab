@@ -688,6 +688,8 @@ GameObject:
   m_Component:
   - component: {fileID: 3043418310349125450}
   - component: {fileID: 3043418310349125451}
+  - component: {fileID: 8146255802541732657}
+  - component: {fileID: 7030134268663481549}
   m_Layer: 0
   m_Name: CM_Flight_Locked
   m_TagString: Untagged
@@ -745,6 +747,45 @@ MonoBehaviour:
         m_Calls: []
   m_LegacyBlendHint: 0
   m_ComponentOwner: {fileID: 3043418310120118433}
+--- !u!114 &8146255802541732657
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3043418310349125449}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f66f54565cc9cc4492d6f3d3c96a299, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  offset: {x: 0, y: 0.35, z: 0}
+  maxHoriAngleDiff: 30
+  maxHoriSpeed: 70
+  minHoriSpeed: 5
+  maxVertAngleDiff: 20
+  maxVertSpeed: 50
+  minVertSpeed: 5
+  maxVertAngle: 30
+  minVertAngle: -30
+  trackingRadius: 10
+--- !u!114 &7030134268663481549
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3043418310349125449}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7bfe02ab913a1fb438843db0a47ae776, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  zoomRef:
+    UseLocalVariable: 0
+    LocalVariable: 0
+    SharedVariable: {fileID: 11400000, guid: cc7d600d13e362344bfd0dbb4b063972, type: 2}
+  settingVars: {fileID: 11400000, guid: c4c4c77c7ff21fc4c913c53182710108, type: 2}
 --- !u!1 &3043418311439442739
 GameObject:
   m_ObjectHideFlags: 0

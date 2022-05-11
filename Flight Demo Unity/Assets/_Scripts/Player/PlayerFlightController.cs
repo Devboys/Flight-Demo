@@ -7,42 +7,8 @@ using System;
 [RequireComponent(typeof(PlayerDashController))]
 public class PlayerFlightController : PlayerMovementStateBase
 {
-    [Header("Basic speed Settings")]
-    [Tooltip("The base flying speed of the player. In units/second.")]
-    [SerializeField] private float initialFlySpeed = 10;
-    [Tooltip("The desired minimum speed of the player. In units/second.")]
-    [SerializeField] private float minFlySpeed = 2;
-    [Tooltip("The desired maximum speed of the player. In units/second.")]
-    [SerializeField] private float maxFlySpeed = 15;
-    [Tooltip("How fast the players current speed is corrected when exceeding defined limits. In units/second^2")]
-    [SerializeField] private float speedCorrectionDelta = 5;
-
-    [Header("Tilt & rotation Setting")]
-    [Tooltip("The speed modifier when the player is fully tilted up or down. In units/second.")]
-    [SerializeField] private float tiltAcceleration = 5;
-    [Tooltip("How long it takes the player to rotate vertically around themselves. In degrees/second.")]
-    [SerializeField] private float basePitchSpeed = 40;
-    [Tooltip("Time required to go from idle to full pitch speed when turning at full tilt. In seconds.")]
-    [SerializeField] private float pitchSpeedDamping = 0.25f;
-    [Tooltip("How long it takes the player to rotate horizontally around themselves. In degrees/second.")]
-    [SerializeField] private float baseYawSpeed = 40;
-    [Tooltip("Time required to go from idle to full yaw speed when turning at full tilt. In seconds.")]
-    [SerializeField] private float yawSpeedDamping = 0.25f;
-    [Tooltip("The maximum rotation of the player from neutral position (0 rotation). In degrees.")]
-    [SerializeField] private float maxPitchAngle = 50;
-    [Tooltip("The minimum rotation of the player from neutral position (0 rotation). In degrees.")]
-    [SerializeField] private float minPitchAngle = -50;
-
-    [Label("Flap cooldown/speedup delay is handled through animation events.")]
-    [Header("Wing flap Settings")]
-    [Tooltip("How much the player accelerates from a single wing flap. In units/second.")]
-    [SerializeField] private float flapSpeedMod = 8;
-
-    [Header("Wing break vars")]
-    [Tooltip("How much the player slows down when breaking with a wing. Applies doubly when breaking with both wings. In units/second.")]
-    [SerializeField] private float breakFlightDeceleration = -4;
-    [Tooltip("How much faster the player rotates horizontally when breaking either left or right. In degrees/second.")]
-    [SerializeField] private float breakYawSpeedMod = -40;
+    [Header("Static Settings")]
+    [SerializeField] private PlayerSettingsObject settings;
 
     [Label("Variables that this controller must check before switching to a dash state")]
     [Header("Dash transition vars")]
@@ -99,7 +65,7 @@ public class PlayerFlightController : PlayerMovementStateBase
 
         currentYawSpeed = 0;
 
-        currentSpeed.CurrentValue = initialFlySpeed;
+        currentSpeed.CurrentValue = settings.initialFlySpeed;
         inputObject = SharedPlayerInput.GetSceneInstance().GetPlayerInput();
     }
 
@@ -152,26 +118,6 @@ public class PlayerFlightController : PlayerMovementStateBase
         EndFlap();
     }
 
-    public void OnValidate()
-    {
-        ValidateUtils.EnsurePositiveOrZero(ref initialFlySpeed);
-        ValidateUtils.EnsurePositiveOrZero(ref minFlySpeed);
-        ValidateUtils.EnsurePositiveOrZero(ref maxFlySpeed);
-        ValidateUtils.EnsurePositiveOrZero(ref speedCorrectionDelta);
-
-        ValidateUtils.EnsurePositiveOrZero(ref tiltAcceleration);
-        ValidateUtils.EnsurePositiveOrZero(ref basePitchSpeed);
-        ValidateUtils.EnsurePositiveOrZero(ref baseYawSpeed);
-
-        ValidateUtils.EnsureNegativeOrZero(ref minPitchAngle);
-        ValidateUtils.EnsurePositiveOrZero(ref maxPitchAngle);
-
-        ValidateUtils.EnsurePositiveOrZero(ref flapSpeedMod);
-
-        ValidateUtils.EnsureNegativeOrZero(ref breakFlightDeceleration);
-        ValidateUtils.EnsurePositiveOrZero(ref breakYawSpeedMod);
-    }
-
 #if UNITY_EDITOR
     public override void StateDrawGizmos()
     {
@@ -188,9 +134,9 @@ public class PlayerFlightController : PlayerMovementStateBase
             GizmoUtils.DrawVector(3, 0.2f, currentPos, baseSideways, Color.black);
 
             //draw max/min rotations as vectors
-            Vector3 maxVector = Quaternion.AngleAxis(maxPitchAngle, baseSideways) * baseForward;
+            Vector3 maxVector = Quaternion.AngleAxis(settings.maxPitchAngle, baseSideways) * baseForward;
             GizmoUtils.DrawVector(3, 0.2f, currentPos, maxVector, Color.blue);
-            Vector3 minVector = Quaternion.AngleAxis(minPitchAngle, baseSideways) * baseForward;
+            Vector3 minVector = Quaternion.AngleAxis(settings.minPitchAngle, baseSideways) * baseForward;
             GizmoUtils.DrawVector(3, 0.2f, currentPos, minVector, Color.red);
         }
         else if (Application.isEditor )
@@ -200,10 +146,10 @@ public class PlayerFlightController : PlayerMovementStateBase
             GizmoUtils.DrawVector(3, 0.2f, currentPos, transform.right, Color.black);
 
             //draw max/min rotations as vectors
-            Vector3 maxVector = Quaternion.AngleAxis(maxPitchAngle, currentPos) * transform.forward;
+            Vector3 maxVector = Quaternion.AngleAxis(settings.maxPitchAngle, currentPos) * transform.forward;
 
             GizmoUtils.DrawVector(3, 0.2f, currentPos, maxVector, Color.blue);
-            Vector3 minVector = Quaternion.AngleAxis(minPitchAngle, transform.right) * transform.forward;
+            Vector3 minVector = Quaternion.AngleAxis(settings.minPitchAngle, transform.right) * transform.forward;
             GizmoUtils.DrawVector(3, 0.2f, currentPos, minVector, Color.red);
         }
     }
@@ -227,22 +173,22 @@ public class PlayerFlightController : PlayerMovementStateBase
         float desiredPitchSpeed = 0.0f;
         if (Mathf.Abs(movementInputVector.y) > 0.01f)
         {
-            desiredPitchSpeed = movementInputVector.y * basePitchSpeed;
+            desiredPitchSpeed = movementInputVector.y * settings.basePitchSpeed;
         }
 
         //pitch-turn velocity damping
-        currentPitchSpeed = Mathf.SmoothDamp(currentPitchSpeed, desiredPitchSpeed, ref currentPitchSpeedVelocity, pitchSpeedDamping);
+        currentPitchSpeed = Mathf.SmoothDamp(currentPitchSpeed, desiredPitchSpeed, ref currentPitchSpeedVelocity, settings.pitchSpeedDamping);
         Vector3 desiredDirection = Quaternion.AngleAxis(currentPitchSpeed * Time.deltaTime, baseSideways) * flyDirection;
 
         //clamp desired direction to pitch extrema.
         float angle = Vector3.SignedAngle(baseForward, desiredDirection, baseSideways);
-        if (angle > maxPitchAngle)
+        if (angle > settings.maxPitchAngle)
         {
-            desiredDirection = Quaternion.AngleAxis(maxPitchAngle, baseSideways) * baseForward;
+            desiredDirection = Quaternion.AngleAxis(settings.maxPitchAngle, baseSideways) * baseForward;
         }
-        else if(angle < minPitchAngle)
+        else if(angle < settings.minPitchAngle)
         {
-            desiredDirection = Quaternion.AngleAxis(minPitchAngle, baseSideways) * baseForward;
+            desiredDirection = Quaternion.AngleAxis(settings.minPitchAngle, baseSideways) * baseForward;
         }
         flyDirection = desiredDirection;
 
@@ -250,10 +196,10 @@ public class PlayerFlightController : PlayerMovementStateBase
         float desiredYawSpeed = 0.0f;
         if (Mathf.Abs(movementInputVector.x) > 0.01f)
         {
-            desiredYawSpeed = movementInputVector.x * baseYawSpeed;
+            desiredYawSpeed = movementInputVector.x * settings.baseYawSpeed;
         }
         //yaw-turn velocity damping
-        currentYawSpeed = Mathf.SmoothDamp(currentYawSpeed, desiredYawSpeed, ref currentYawSpeedVelocity, yawSpeedDamping);
+        currentYawSpeed = Mathf.SmoothDamp(currentYawSpeed, desiredYawSpeed, ref currentYawSpeedVelocity, settings.yawSpeedDamping);
         flyDirection = Quaternion.AngleAxis(currentYawSpeed * Time.deltaTime, Vector3.up) * flyDirection;
     }
 
@@ -267,20 +213,20 @@ public class PlayerFlightController : PlayerMovementStateBase
         if (breakLeftInput >= 0.5f)
         {
             //decelerate
-            currentSpeed.CurrentValue += breakFlightDeceleration * Time.deltaTime;
+            currentSpeed.CurrentValue += settings.breakFlightDeceleration * Time.deltaTime;
 
             //rotate flight vector
-            flyDirection = Quaternion.AngleAxis(-breakYawSpeedMod * Time.deltaTime, Vector3.up) * flyDirection;
+            flyDirection = Quaternion.AngleAxis(-settings.breakYawSpeedMod * Time.deltaTime, Vector3.up) * flyDirection;
         }
 
         //Handle break right
         if (breakRightInput  >= 0.5f)
         {
             //decelerate
-            currentSpeed.CurrentValue += breakFlightDeceleration * Time.deltaTime;
+            currentSpeed.CurrentValue += settings.breakFlightDeceleration * Time.deltaTime;
 
             //rotate flight vector
-            flyDirection = Quaternion.AngleAxis(breakYawSpeedMod * Time.deltaTime, Vector3.up) * flyDirection;
+            flyDirection = Quaternion.AngleAxis(settings.breakYawSpeedMod * Time.deltaTime, Vector3.up) * flyDirection;
         }
 
         //set animator vars
@@ -292,20 +238,20 @@ public class PlayerFlightController : PlayerMovementStateBase
     {
         //accelerate or decelerate when pointing down or up, respectively.
         float verticalAngle = Vector3.SignedAngle(baseForward, flyDirection, baseSideways);
-        if (verticalAngle != 0) currentSpeed.CurrentValue += -(verticalAngle / maxPitchAngle) * tiltAcceleration * Time.deltaTime;
+        if (verticalAngle != 0) currentSpeed.CurrentValue += -(verticalAngle / settings.maxPitchAngle) * settings.tiltAcceleration * Time.deltaTime;
     }
 
     private void ClampFlightSpeed()
     {
         //clamp speed to defined extrema.
-        if (currentSpeed.CurrentValue > maxFlySpeed)
+        if (currentSpeed.CurrentValue > settings.maxFlySpeed)
         {
-            currentSpeed.CurrentValue = Mathf.MoveTowards(currentSpeed.CurrentValue, maxFlySpeed, speedCorrectionDelta * Time.deltaTime);
+            currentSpeed.CurrentValue = Mathf.MoveTowards(currentSpeed.CurrentValue, settings.maxFlySpeed, settings.speedCorrectionDelta * Time.deltaTime);
         }
-        else if (currentSpeed.CurrentValue < minFlySpeed)
+        else if (currentSpeed.CurrentValue < settings.minFlySpeed)
         {
             //no correction delta on min fly speed
-            currentSpeed.CurrentValue = minFlySpeed;
+            currentSpeed.CurrentValue = settings.minFlySpeed;
         }
 
     }
@@ -407,7 +353,7 @@ public class PlayerFlightController : PlayerMovementStateBase
 
     void FlapAccelerate()
     {
-        currentSpeed.CurrentValue += flapSpeedMod;
+        currentSpeed.CurrentValue += settings.flapSpeedMod;
     }
 
     void EndFlap()
