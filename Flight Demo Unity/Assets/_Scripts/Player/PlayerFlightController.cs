@@ -354,6 +354,7 @@ public class PlayerFlightController : PlayerMovementStateBase
     void FlapAccelerate()
     {
         currentSpeed.CurrentValue += settings.flapSpeedMod;
+        currentSpeed.CurrentValue = Mathf.Clamp(currentSpeed.CurrentValue, settings.minFlySpeed, settings.maxFlySpeed);
     }
 
     void EndFlap()
